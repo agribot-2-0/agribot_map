@@ -1,0 +1,3 @@
+<launch>
+    <node name="agribot_path_synchronization" pkg="agribot_path_synchronization" type="path_synchronization_node.py"/>
+</launch>
