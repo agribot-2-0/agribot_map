@@ -13,6 +13,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 import yaml
 
+from pathhandler import PathHandler
+
 def filter_points(latitude, longitude, step):
     for i in range(0,3):
         del latitude[step-1::step]
@@ -26,7 +28,7 @@ def save_to_yaml(latitude, longitude, name):
         with open(name+'.yaml', 'a') as file:
             yaml.dump(get_pose(latitude, longitude, i), file)
 
-def node():
+def node1():
     #get user ID as argument
     if (len(sys.argv) < 3):
         rospy.logerr("[Path synchronization node] UID not specified.")
@@ -50,6 +52,7 @@ def node():
 
     #if everythong went well init node
     rospy.init_node('path_synchronization_node')
+
     blobs_names = []
     [blobs_names.append(blobs.name) for blobs in bucket.list_blobs()]
     
@@ -78,12 +81,39 @@ def node():
 
     lon = list(np.float_(lon))
     lat = list(np.float_(lat))
-    filter_points(lon, lat, 2)
+    #filter_points(lon, lat, 2)
     plt.plot(lon, lat, 'r.')
     save_to_yaml(lon, lat, path_name)
     plt.show()
 
     rospy.spin()
 
+def node():
+    if (len(sys.argv) < 3):
+        rospy.logerr("[Path synchronization node] UID or path name not specified.")
+        return
+    rospack = rospkg.RosPack()
+    rospack.list()
+    # init path handling object:
+    pathhandle = PathHandler(sys.argv[1], sys.argv[2], rospack.get_path('agribot_map'))
+
+    rospy.init_node('path_synchronization_node')
+
+    key_path = rospack.get_path('agribot_map') + "/key/"
+    if(not path.exists(key_path)):
+        rospy.logerr("[Path synchronization node] Key folder not present.")
+        return
+
+    ret = pathhandle.initialize_connection_with_firestore(key_path + "agribot-cd437-firebase-adminsdk-ypr8o-5e1109055d.json")
+    if(not ret):
+        rospy.logerr("[Path synchronization node] Bucket does not exist. Initialization failed.")
+        return
+
+    pathhandle.sync_paths()
+
+    rospy.spin()
+
+
 if __name__ == '__main__':
     node()
+
