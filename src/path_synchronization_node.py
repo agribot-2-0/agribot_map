@@ -11,6 +11,20 @@ import re
 import math
 from matplotlib import pyplot as plt
 import numpy as np
+import yaml
+
+def filter_points(latitude, longitude, step):
+    for i in range(0,3):
+        del latitude[step-1::step]
+        del longitude[step-1::step]
+
+def get_pose(latitude, longitude, ind):
+    return dict(pose=dict(position=[float(latitude[ind][0]),float(longitude[ind][0]),0.0],orientation=[0.0,0.0,0.0,1.0]))
+
+def save_to_yaml(latitude, longitude, name):
+    for i in range(0, len(latitude)):
+        with open(name+'.yaml', 'a') as file:
+            yaml.dump(get_pose(latitude, longitude, i), file)
 
 def node():
     #get user ID as argument
@@ -64,8 +78,9 @@ def node():
 
     lon = list(np.float_(lon))
     lat = list(np.float_(lat))
-
-    plt.plot(lon, lat)
+    filter_points(lon, lat, 2)
+    plt.plot(lon, lat, 'r.')
+    save_to_yaml(lon, lat, path_name)
     plt.show()
 
     rospy.spin()
