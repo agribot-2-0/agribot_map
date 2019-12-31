@@ -1,2 +1,4 @@
 key/*
 paths/*
+*.yaml
+agribot_uid
