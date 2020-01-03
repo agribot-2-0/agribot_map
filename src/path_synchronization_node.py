@@ -4,8 +4,6 @@ import rospkg
 from std_msgs.msg import String
 import sys
 from os import path
-from matplotlib import pyplot as plt
-import yaml
 from pathhandler import PathHandler
 
 def node():

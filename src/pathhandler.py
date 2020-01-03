@@ -1,14 +1,9 @@
-import rospy
 import firebase_admin
 from firebase_admin import credentials, storage
-import rospkg
-import sys
 import os
-from lxml import etree
 import xml.etree.ElementTree as ET
 import re
 import math
-from matplotlib import pyplot as plt
 import numpy as np
 import yaml
 
@@ -66,8 +61,8 @@ class PathHandler:
                     path_points = re.split(',| ', subAttribute.text)
                     del path_points[:2]
 
-        lon = [path_points[3*i:3*i+1] for i in range(0,math.ceil(len(path_points)/3))]
-        lat = [path_points[3*i+1:3*i+2] for i in range(0,math.ceil(len(path_points)/3))]
+        lon = [path_points[3*i:3*i+1] for i in range(0, math.ceil(len(path_points)/3))]
+        lat = [path_points[3*i+1:3*i+2] for i in range(0, math.ceil(len(path_points)/3))]
 
         lon = list(np.float_(lon))
         lat = list(np.float_(lat))
@@ -80,9 +75,8 @@ class PathHandler:
         #find all files inside user folder:
         blobs_names = list(filter(lambda k: self.user_id in k, blobs_names))
         if(len(blobs_names) < 1):
-            #TODO ???: create folder for user_id
             print("[Path synchronization node] User folder does not exists")
-            return
+            return False
         # #find all paths insde user folder:
         blobs_names = list(filter(lambda k: self.user_id in k, blobs_names))
         #delete first element, because it is user folder name
