@@ -22,11 +22,16 @@ class PathHandler:
         self.user_id = user_id
         self.PACK_PATH = pack_path
         try:
-            with open(self.PACK_PATH + "/paths_ver.yaml") as f:
-                self.paths = dict(yaml.safe_load(f))
+            with open(self.PACK_PATH + "/paths_ver.yaml") as file:
+                self.paths = dict(yaml.safe_load(file))
         except IOError:
-            f = open(self.PACK_PATH + "/paths_ver.yaml", "w")
-        f.close()
+            file = open(self.PACK_PATH + "/paths_ver.yaml", "w")
+        file.close()
+
+    def filter_points(self, latitude, longitude, step):
+        for i in range(0,3):
+            del latitude[step-1::step]
+            del longitude[step-1::step]
 
     def initialize_connection_with_firestore(self, certificate_file):
         cred = credentials.Certificate(certificate_file)
@@ -42,9 +47,13 @@ class PathHandler:
     def save_to_yaml(self, latitude, longitude, name):
         if not os.path.exists(self.PACK_PATH + "/paths"):
             os.makedirs(self.PACK_PATH + "/paths")
+        #clear file before appending
+        open(self.PACK_PATH + "/paths/" + name + '.yaml', 'w').close()
+        #append all points
         for i in range(0, len(latitude)):
             with open(self.PACK_PATH + "/paths/" + name + '.yaml', 'a') as file:
                 yaml.dump(self.get_pose(latitude, longitude, i), file)
+        file.close()
 
     def download_path(self, blob_name, path_nam):
         blob_name = self.bucket.blob(blob_name)
@@ -65,6 +74,7 @@ class PathHandler:
         self.save_to_yaml(lon, lat, path_nam)
 
     def sync_paths(self):
+        is_new_path_availible = False
         blobs_names = []
         [blobs_names.append(blobs.name) for blobs in self.bucket.list_blobs()]
         #find all files inside user folder:
@@ -86,12 +96,16 @@ class PathHandler:
                     print("New path found")
                     self.paths[path_nam] = path_ver
                     self.download_path(blob, path_nam)
+                    is_new_path_availible = True
             else:
                 self.paths[path_nam] = path_ver
                 self.download_path(blob, path_nam)
+                is_new_path_availible = True
         try:
-            with open(self.PACK_PATH + "/paths_ver.yaml", "w") as f:
-                yaml.dump(self.paths,f)
+            with open(self.PACK_PATH + "/paths_ver.yaml", "w") as file:
+                yaml.dump(self.paths, file)
         except IOError:
             print("Error opening YAML file.")
+
+        return is_new_path_availible
 
