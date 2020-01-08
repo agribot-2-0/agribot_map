@@ -22,6 +22,7 @@ class PathHandler:
         self.PACK_PATH = pack_path
         self.PATH_VER_PATH = self.PACK_PATH + "/paths_ver.yaml"
         self.PATHS_PATH = self.PACK_PATH + "/paths"
+        
         try:
             with open(self.PATH_VER_PATH) as file:
                 self.paths = dict(yaml.safe_load(file))
@@ -29,17 +30,11 @@ class PathHandler:
             file = open(self.PATH_VER_PATH, "w")
         file.close()
 
-
-    def filter_points(self, latitude, longitude, step):
-        for i in range(0,3):
-            del latitude[step-1::step]
-            del longitude[step-1::step]
-
     def extract_lon(self, points):
-        return [points[3*i:3*i+1] for i in range(0, math.ceil(len(points)/3))]
+        return list(np.float_([points[3*i:3*i+1] for i in range(0, math.ceil(len(points)/3))]))
 
     def extract_lat(self, points):
-        return [points[3*i+1:3*i+2] for i in range(0, math.ceil(len(points)/3))]
+        return list(np.float_([points[3*i+1:3*i+2] for i in range(0, math.ceil(len(points)/3))]))
 
     def get_all_user_paths(self, blob_nam):
         return list(filter(lambda k: self.user_id in k, blob_nam))
@@ -93,20 +88,22 @@ class PathHandler:
         path_points = self.get_path_points_from_blob(blob_name)
         lon = self.extract_lon(path_points)
         lat = self.extract_lat(path_points)
-        lon = list(np.float_(lon))
-        lat = list(np.float_(lat))
+
         self.save_to_yaml(lon, lat, path_nam)
 
     def sync_paths(self):
         blobs_names = []
         is_new_path_availible = False
+        
         blobs_names = self.get_all_blobs_from_bucket(blobs_names)
         blobs_names = self.get_all_user_paths(blobs_names)
+        
         if(len(blobs_names) < 1):
             print("[Path synchronization node] User folder does not exists")
             return False
         #delete first element, because it is user folder name
         del blobs_names[0]
+        
         for blob in blobs_names:
             path_nam = self.parse_path_name(blob)
             path_ver = self.parse_path_number(blob)
