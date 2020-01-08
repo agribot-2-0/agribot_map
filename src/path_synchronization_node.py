@@ -15,12 +15,12 @@ def node():
 
     # init path handling object:
     rospack = rospkg.RosPack()
-    pathhandle = PathHandler(sys.argv[1], rospack.get_path('agribot_map'))
     key_path = rospack.get_path('agribot_map') + "/key/"
     if(not path.exists(key_path)):
         rospy.logerr("[Path synchronization node] Key folder not present.")
         return
 
+    pathhandle = PathHandler(sys.argv[1], rospack.get_path('agribot_map'))
     ret = pathhandle.initialize_connection_with_firestore(key_path + "agribot-cd437-firebase-adminsdk-ypr8o-5e1109055d.json")
     if(not ret):
         rospy.logerr("[Path synchronization node] Bucket does not exist. Initialization failed.")
