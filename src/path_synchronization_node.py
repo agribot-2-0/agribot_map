@@ -11,8 +11,6 @@ def node():
         rospy.logerr("[Path synchronization node] UID not specified.")
         return
 
-    pub = rospy.Publisher('agribot/path_sync', String, queue_size=10)
-
     # init path handling object:
     rospack = rospkg.RosPack()
     key_path = rospack.get_path('agribot_map') + "/key/"
@@ -27,6 +25,7 @@ def node():
         return
 
     rospy.init_node('path_synchronization_node')
+    pub = rospy.Publisher('agribot/path_sync', String, queue_size=10)
 
     rate = rospy.Rate(0.1)
     while not rospy.is_shutdown():
