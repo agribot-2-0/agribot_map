@@ -1,0 +1,5 @@
+key/*
+paths/*
+*.yaml
+agribot_uid
+src/__pycache__/
