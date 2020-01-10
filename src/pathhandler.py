@@ -16,16 +16,18 @@ class PathHandler:
     PATH_VER_PATH = ""
     user_id = ""
     paths = dict() # index=path_name, value=path_version
+    position_number = 0
 
     def __init__(self, user_id, pack_path):
         self.user_id = user_id
         self.PACK_PATH = pack_path
         self.PATH_VER_PATH = self.PACK_PATH + "/paths_ver.yaml"
         self.PATHS_PATH = self.PACK_PATH + "/paths"
-        
+
         try:
             with open(self.PATH_VER_PATH) as file:
-                self.paths = dict(yaml.safe_load(file))
+                if (os.stat(self.PATH_VER_PATH).st_size!=0):
+                    self.paths = dict(yaml.safe_load(file))
         except IOError:
             file = open(self.PATH_VER_PATH, "w")
         file.close()
@@ -46,8 +48,11 @@ class PathHandler:
         return list(filter(lambda k: self.user_id in k, blob_nam))
 
     def get_pose(self, latitude, longitude, ind):
-        return dict(pose = dict(position = 
-        [float(latitude[ind][0]), float(longitude[ind][0]), 0.0], orientation = [0.0, 0.0, 0.0, 1.0]))
+        pose = dict()
+        pose[("pose" + str(self.position_number))] = dict(position = 
+        [float(latitude[ind][0]), float(longitude[ind][0]), 0.0], orientation = [0.0, 0.0, 0.0, 1.0])
+        self.position_number = self.position_number + 1
+        return pose
 
     def parse_path_name(self, blb):
         return blb[len(self.user_id)+1:len(blb)].split("_v")[0]
@@ -81,6 +86,7 @@ class PathHandler:
         return True
 
     def save_to_yaml(self, latitude, longitude, name):
+        self.position_number = 0
         if not os.path.exists(self.PATHS_PATH):
             os.makedirs(self.PATHS_PATH)
         open(self.get_path_location(name), 'w').close()
