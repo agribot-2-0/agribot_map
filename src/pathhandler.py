@@ -50,7 +50,7 @@ class PathHandler:
     def get_pose(self, latitude, longitude, ind):
         pose = dict()
         pose[("pose" + str(self.position_number))] = dict(position = 
-        [float(latitude[ind][0]), float(longitude[ind][0]), 0.0], orientation = [0.0, 0.0, 0.0, 1.0])
+        [float(longitude[ind][0]), float(latitude[ind][0]), 0.0], orientation = [0.0, 0.0, 0.0, 1.0])
         self.position_number = self.position_number + 1
         return pose
 
