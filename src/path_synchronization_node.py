@@ -35,7 +35,7 @@ def node():
     rate = rospy.Rate(0.1)
     while not rospy.is_shutdown():
         if pathhandle.sync_paths():
-            pub.publish("New path availible")
+            pub.publish("New path available")
         rate.sleep()
 
 if __name__ == '__main__':
