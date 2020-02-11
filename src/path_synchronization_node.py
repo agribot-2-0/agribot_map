@@ -7,6 +7,8 @@ from std_msgs.msg import String
 from pathhandler import PathHandler
 
 def node():
+
+    rospy.init_node('path_synchronization_node')
     if len(sys.argv) < 2:
         rospy.logerr("[Path synchronization node] UID not specified.")
         return
@@ -27,7 +29,7 @@ def node():
         rospy.logerr("[Path synchronization node] Bucket does not exist. Initialization failed.")
         return
 
-    rospy.init_node('path_synchronization_node')
+    
     pub = rospy.Publisher('agribot/path_sync', String, queue_size=10)
 
     rate = rospy.Rate(0.1)
