@@ -36,13 +36,13 @@ class PathHandler:
         # points[3*i:3*i+1] is dictated by format of data
         # received from parsing KML file in get_path_points_from_blob method points list
         # like so: [alt1,lon1,lat1,alt1,lon1,lat1,...]
-        return list(np.float_([points[3*i:3*i+1] for i in range(0, math.ceil(len(points)/3))]))
+        return list(np.float_([points[3*i:3*i+1] for i in range(0, int(math.ceil(len(points)/3)))]))
 
     def extract_lat(self, points):
         # points[3*i+1:3*i+2] is dictated by format of data
         # received from parsing KML file in get_path_points_from_blob method points list
         # like so: [alt1,lon1,lat1,alt1,lon1,lat1,...]
-        return list(np.float_([points[3*i+1:3*i+2] for i in range(0, math.ceil(len(points)/3))]))
+        return list(np.float_([points[3*i+1:3*i+2] for i in range(0, int(math.ceil(len(points)/3)))]))
 
     def get_all_user_paths(self, blob_nam):
         return list(filter(lambda k: self.user_id in k, blob_nam))
@@ -93,7 +93,7 @@ class PathHandler:
         open(self.get_path_location(name), 'w').close()
         for i in range(0, len(latitude)):
             with open(self.get_path_location(name), 'a') as file:
-                yaml.dump(self.get_pose(latitude, longitude, i), file)
+                yaml.safe_dump(self.get_pose(latitude, longitude, i), file)
         file.close()
 
     def download_path(self, blob_name, path_nam):
@@ -131,7 +131,7 @@ class PathHandler:
                 is_new_path_availible = True
         try:
             with open(self.path_ver_path, "w") as file:
-                yaml.dump(self.paths, file)
+                yaml.safe_dump(self.paths, file)
         except IOError:
             print("Error opening YAML file.")
 
