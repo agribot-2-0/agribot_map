@@ -3,3 +3,4 @@ paths/*
 *.yaml
 agribot_uid
 src/__pycache__/
+*.pyc
