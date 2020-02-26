@@ -19,7 +19,7 @@ class PathHandler:
     position_number = 0
 
     def __init__(self, user_id, pack_path):
-        self.user_id = user_id
+        self.user_id = user_id + "/paths"
         self.ros_pack_path = pack_path
         self.path_ver_path = self.ros_pack_path + "/paths_ver.yaml"
         self.paths_path = self.ros_pack_path + "/paths"
