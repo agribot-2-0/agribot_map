@@ -8,14 +8,14 @@ pipelines:
           - apk add --update bash coreutils tar python3 py3-pip
           - pip3 install pylint
           - pylint scripts/*
-     - step:
-         name: "ROS Build"
-         services:
-           - docker
-         script:
-           - apk add --update bash coreutils tar
-           - git clone --quiet --depth 1 https://github.com/ros-industrial/industrial_ci .industrial_ci
-           - .industrial_ci/bitbucket.sh ROS_DISTRO=melodic
+    - step:
+        name: "ROS Build"
+        services:
+          - docker
+        script:
+          - apk add --update bash coreutils tar
+          - git clone --quiet --depth 1 https://github.com/ros-industrial/industrial_ci .industrial_ci
+          - .industrial_ci/bitbucket.sh ROS_DISTRO=melodic
 
 definitions:
   services:
