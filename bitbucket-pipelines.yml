@@ -5,9 +5,10 @@ pipelines:
     - step:
         name: "Check pylint"
         script:
-          - apk add --update bash coreutils tar python3 py3-pip
-          - pip3 install pylint
-          - pylint scripts/*
+          - apk add --update bash coreutils tar python py-pip
+          - pip install pylint
+          - git clone https://github.com/panpawelchmiel/agribot_common.git
+          - pylint --rcfile=agribot_common/pylint_conf/.pylintrc scripts/*
     - step:
         name: "ROS Build"
         services:
