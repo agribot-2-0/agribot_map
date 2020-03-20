@@ -29,7 +29,6 @@ def node():
         rospy.logerr("[Path synchronization node] Bucket does not exist. Initialization failed.")
         return
 
-    
     pub = rospy.Publisher('agribot/path_sync', String, queue_size=10)
 
     rate = rospy.Rate(0.1)

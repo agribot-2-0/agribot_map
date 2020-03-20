@@ -7,10 +7,11 @@ import yaml
 import firebase_admin
 from firebase_admin import credentials, storage
 
-class PathHandler:
+class PathHandler(object):
     kml_line_string = './/{http://www.opengis.net/kml/2.2}LineString'
     kml_coord = '{http://www.opengis.net/kml/2.2}coordinates'
 
+    bucket = None
     bucket_name = 'agribot-cd437.appspot.com'
     ros_pack_path = ""
     path_ver_path = ""
@@ -25,24 +26,27 @@ class PathHandler:
         self.paths_path = self.ros_pack_path + "/paths"
 
         try:
-            with open(self.path_ver_path) as file:
+            with open(self.path_ver_path) as file_:
                 if os.stat(self.path_ver_path).st_size != 0:
-                    self.paths = dict(yaml.safe_load(file))
+                    self.paths = dict(yaml.safe_load(file_))
         except IOError:
-            file = open(self.path_ver_path, "w")
-        file.close()
+            file_ = open(self.path_ver_path, "w")
+        file_.close()
 
-    def extract_lon(self, points):
+    @classmethod
+    def extract_lon(cls, points):
         # points[3*i:3*i+1] is dictated by format of data
         # received from parsing KML file in get_path_points_from_blob method points list
         # like so: [alt1,lon1,lat1,alt1,lon1,lat1,...]
         return list(np.float_([points[3*i:3*i+1] for i in range(0, int(math.ceil(len(points)/3)))]))
 
-    def extract_lat(self, points):
+    @classmethod
+    def extract_lat(cls, points):
         # points[3*i+1:3*i+2] is dictated by format of data
         # received from parsing KML file in get_path_points_from_blob method points list
         # like so: [alt1,lon1,lat1,alt1,lon1,lat1,...]
-        return list(np.float_([points[3*i+1:3*i+2] for i in range(0, int(math.ceil(len(points)/3)))]))
+        return list(np.float_([points[3*i+1:3*i+2]
+                               for i in range(0, int(math.ceil(len(points)/3)))]))
 
     def get_all_user_paths(self, blob_nam):
         return list(filter(lambda k: self.user_id in k, blob_nam))
@@ -62,7 +66,8 @@ class PathHandler:
         return int((blb[len(self.user_id)+1:len(blb)].split("_v")[1])[:-4])
 
     def get_all_blobs_from_bucket(self, blb_name):
-        [blb_name.append(blobs.name) for blobs in self.bucket.list_blobs()]
+        for blobs in self.bucket.list_blobs():
+            blb_name.append(blobs.name)
         return blb_name
 
     def get_path_points_from_blob(self, blb_name):
@@ -92,9 +97,9 @@ class PathHandler:
             os.makedirs(self.paths_path)
         open(self.get_path_location(name), 'w').close()
         for i in range(0, len(latitude)):
-            with open(self.get_path_location(name), 'a') as file:
-                yaml.safe_dump(self.get_pose(latitude, longitude, i), file)
-        file.close()
+            with open(self.get_path_location(name), 'a') as file_:
+                yaml.safe_dump(self.get_pose(latitude, longitude, i), file_)
+        file_.close()
 
     def download_path(self, blob_name, path_nam):
         blob_name = self.bucket.blob(blob_name)
@@ -112,7 +117,7 @@ class PathHandler:
         blobs_names = self.get_all_user_paths(blobs_names)
 
         if len(blobs_names) < 1:
-            print("[Path synchronization node] User folder does not exists")
+            print "[Path synchronization node] User folder does not exists"
             return False
         #delete first element, because it is user folder name
         del blobs_names[0]
@@ -130,9 +135,9 @@ class PathHandler:
                 self.download_path(blob, path_nam)
                 is_new_path_availible = True
         try:
-            with open(self.path_ver_path, "w") as file:
-                yaml.safe_dump(self.paths, file)
+            with open(self.path_ver_path, "w") as file_:
+                yaml.safe_dump(self.paths, file_)
         except IOError:
-            print("Error opening YAML file.")
+            print "Error opening YAML file."
 
         return is_new_path_availible
