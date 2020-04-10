@@ -1,6 +1,6 @@
 key/*
 paths/*
-*.yaml
+paths_ver.yaml
 agribot_uid
 src/__pycache__/
 *.pyc

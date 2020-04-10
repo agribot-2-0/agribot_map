@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="uid" value="xhMK5aMLSZOo5rsS67xlTw9dg5o1" />
+  <arg name="uid" default="xhMK5aMLSZOo5rsS67xlTw9dg5o1" />
 
   <node name="agribot_path_synchronization"
     pkg="agribot_map"
