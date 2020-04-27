@@ -73,6 +73,7 @@ class PathHandler(object):
     def get_path_points_from_blob(self, blb_name):
         tree = ET.fromstring(blb_name.download_as_string())
         line_string = tree.findall(self.kml_line_string)
+        path_pts = []
         for attributes in line_string:
             for sub_attribute in attributes:
                 if sub_attribute.tag == self.kml_coord:
@@ -104,8 +105,11 @@ class PathHandler(object):
     def download_path(self, blob_name, path_nam):
         blob_name = self.bucket.blob(blob_name)
         path_points = self.get_path_points_from_blob(blob_name)
-        lon = self.extract_lon(path_points)
-        lat = self.extract_lat(path_points)
+        if len(path_points) > 0:
+            lon = self.extract_lon(path_points)
+            lat = self.extract_lat(path_points)
+        else:
+            raise Exception("Wrong format of path or path empty: " + str(blob_name))
 
         self.save_to_yaml(lon, lat, path_nam)
 
