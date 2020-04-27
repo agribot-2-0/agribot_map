@@ -105,7 +105,7 @@ class PathHandler(object):
     def download_path(self, blob_name, path_nam):
         blob_name = self.bucket.blob(blob_name)
         path_points = self.get_path_points_from_blob(blob_name)
-        if len(path_points) > 0:
+        if path_points:
             lon = self.extract_lon(path_points)
             lat = self.extract_lat(path_points)
         else:
