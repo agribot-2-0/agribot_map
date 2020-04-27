@@ -109,7 +109,7 @@ class PathHandler(object):
             lon = self.extract_lon(path_points)
             lat = self.extract_lat(path_points)
         else:
-            raise Exception("Wrong format of path or path empty: " + str(blob_name))
+            raise Exception("Wrong format of path or path empty: " + str(path_nam))
 
         self.save_to_yaml(lon, lat, path_nam)
 
