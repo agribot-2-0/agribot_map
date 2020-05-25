@@ -11,3 +11,14 @@ catkin_package()
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
+
+install(DIRECTORY launch maps
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  PATTERN ".svn" EXCLUDE
+)
+
+catkin_install_python(PROGRAMS
+   scripts/path_synchronization_node.py
+   scripts/pathhandler.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
