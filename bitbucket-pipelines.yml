@@ -1,4 +1,4 @@
-image: docker:git
+image: docker:18-git
 
 pipelines:
   default:
@@ -15,8 +15,8 @@ pipelines:
           - docker
         script:
           - apk add --update bash coreutils tar
-          - git clone --quiet --depth 1 https://github.com/ros-industrial/industrial_ci .industrial_ci
-          - .industrial_ci/bitbucket.sh ROS_DISTRO=melodic
+          - git clone --quiet --depth 1 https://github.com/ros-industrial/industrial_ci .industrial_ci -b master
+          - .industrial_ci/bitbucket.sh BUILDER="colcon" ROS_DISTRO=melodic
 
 definitions:
   services:
