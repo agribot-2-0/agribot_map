@@ -12,7 +12,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-install(DIRECTORY launch maps
+install(DIRECTORY launch maps tasks paths osm key
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   PATTERN ".svn" EXCLUDE
 )
