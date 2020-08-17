@@ -11,8 +11,8 @@ import rospkg
 from task_class import TaskSync
 
 # Create an Event for notifying main thread.
-callback_done = threading.Event()
-tasks_path = rospkg.RosPack().get_path('agribot_map') + "/tasks/"
+CALLBACK_DONE = threading.Event()
+TASKS_PATH = rospkg.RosPack().get_path('agribot_map') + "/tasks/"
 
 
 # Create a callback on_snapshot function to capture changes
@@ -22,11 +22,11 @@ def on_snapshot(doc_snapshot, changes, read_time):  # pylint: disable=unused-arg
             write_yaml(change.document)
         elif change.type.name == 'MODIFIED':
             write_yaml(change.document)
-    callback_done.set()
+    CALLBACK_DONE.set()
 
 
 def write_yaml(doc):
-    file_name = tasks_path + doc.id + '.yaml'
+    file_name = TASKS_PATH + doc.id + '.yaml'
     dict_to_write = dict(task=dict(
         path_name=[doc.to_dict()['path_name'].encode('ascii', 'ignore')]))
     with open(file_name, 'w') as outfile:
@@ -59,8 +59,8 @@ def node():
         return
 
     # Remove all cached tasks and make clean dir
-    shutil.rmtree(tasks_path)
-    os.makedirs(tasks_path)
+    shutil.rmtree(TASKS_PATH)
+    os.makedirs(TASKS_PATH)
 
     # Watch the document
     task_sync.get_doc_ref().on_snapshot(on_snapshot)
