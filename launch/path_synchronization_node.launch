@@ -2,11 +2,6 @@
 
   <arg name="uid" default="xhMK5aMLSZOo5rsS67xlTw9dg5o1" />
 
-  <node name="agribot_path_synchronization"
-    pkg="agribot_map"
-    type="path_synchronization_node.py"
-    args="$(arg uid)"
-    output="screen"
-  />
+  <node name="agribot_path_synchronization" pkg="agribot_map" type="path_synchronization_node.py" args="$(arg uid)" output="screen" />
 
 </launch>
