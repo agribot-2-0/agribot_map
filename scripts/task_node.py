@@ -16,7 +16,7 @@ TASKS_PATH = rospkg.RosPack().get_path('agribot_map') + "/tasks/"
 
 
 # Create a callback on_snapshot function to capture changes
-def on_snapshot(doc_snapshot, changes, read_time):  # pylint: disable=unused-argument
+def firebase_callback(doc_snapshot, changes, read_time):  # pylint: disable=unused-argument
     for change in changes:
         if change.type.name == 'ADDED':
             write_yaml(change.document)
@@ -63,7 +63,7 @@ def node():
     os.makedirs(TASKS_PATH)
 
     # Watch the document
-    task_sync.get_doc_ref().on_snapshot(on_snapshot)
+    task_sync.get_doc_ref().on_snapshot(firebase_callback)
 
     rospy.spin()
 
