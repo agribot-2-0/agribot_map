@@ -20,5 +20,7 @@ install(DIRECTORY launch maps tasks paths osm key
 catkin_install_python(PROGRAMS
    scripts/path_synchronization_node.py
    scripts/pathhandler.py
+   scripts/task_class.py
+   scripts/task_node.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
