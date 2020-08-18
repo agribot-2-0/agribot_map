@@ -4,10 +4,9 @@ from firebase_admin import firestore
 
 
 class TaskSync(object):
-    #database
     def __init__(self, rsn):
         self.database = None
-        self.rsn = rsn
+        self.rsn = rsn  # robot serial number
 
     def initialize_connection_with_firestore(self, certificate_file):
         cred = credentials.Certificate(certificate_file)
