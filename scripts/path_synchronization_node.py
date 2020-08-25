@@ -5,6 +5,8 @@ import rospy
 import rospkg
 from std_msgs.msg import String
 from pathhandler import PathHandler
+from google.api_core import exceptions
+
 
 def node():
 
@@ -21,12 +23,19 @@ def node():
         return
 
     pathhandle = PathHandler(sys.argv[1], rospack.get_path('agribot_map'))
-    ret = pathhandle.initialize_connection_with_firestore(key_path +
-                                                          "agribot-cd437-firebase-adminsdk" +
-                                                          "-ypr8o-5e1109055d.json")
+    try:
+        ret = pathhandle.initialize_connection_with_firestore(
+            key_path + "agribot-cd437-firebase-adminsdk" +
+            "-ypr8o-5e1109055d.json")
+    except exceptions.Forbidden as my_except:
+        rospy.logerr(
+            "[Path synchronization node] Exeption: {}".format(my_except))
+        return
 
     if not ret:
-        rospy.logerr("[Path synchronization node] Bucket does not exist. Initialization failed.")
+        rospy.logerr(
+            "[Path synchronization node] Bucket does not exist. Initialization failed."
+        )
         return
 
     pub = rospy.Publisher('agribot/path_sync', String, queue_size=10)
@@ -36,6 +45,7 @@ def node():
         if pathhandle.sync_paths():
             pub.publish("New path available")
         rate.sleep()
+
 
 if __name__ == '__main__':
     try:
