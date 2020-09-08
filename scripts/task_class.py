@@ -12,7 +12,7 @@ class TaskSync(object):
         if not firebase_admin._apps:  # pylint: disable=protected-access
             cred = credentials.Certificate(certificate_file)
             firebase_admin.initialize_app(cred, {
-                'projectID': 'agrsibot-cd437',
+                'projectID': 'agribot-cd437',
             })
             self.database = firestore.client()
         return True
