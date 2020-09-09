@@ -6,14 +6,16 @@ import rospkg
 from std_msgs.msg import String
 from pathhandler import PathHandler
 from google.api_core import exceptions
+from task_class import TaskSync
 
 
 def node():
-
     rospy.init_node('path_synchronization_node')
     if len(sys.argv) < 2:
-        rospy.logerr("[Path synchronization node] UID not specified.")
+        rospy.logerr("[Path synchronization node] RSN not specified.")
         return
+
+    rsn = sys.argv[1]
 
     # init path handling object:
     rospack = rospkg.RosPack()
@@ -22,7 +24,20 @@ def node():
         rospy.logerr("[Path synchronization node] Key folder not present.")
         return
 
-    pathhandle = PathHandler(sys.argv[1], rospack.get_path('agribot_map'))
+    task_sync = TaskSync(rsn)
+    ret_val = task_sync.initialize_connection_with_firestore(
+        key_path + "agribot-cd437-" +
+        "firebase-adminsdk-ypr8o-5e1109055d.json")
+
+    if not ret_val:
+        rospy.logerr(
+            "[Path synchronization node] Bucket does not exist. Initialization failed."
+        )
+        return
+
+    uids = task_sync.get_uids()
+
+    pathhandle = PathHandler(uids[0], rospack.get_path('agribot_map'))
     try:
         ret = pathhandle.initialize_connection_with_firestore(
             key_path + "agribot-cd437-firebase-adminsdk" +

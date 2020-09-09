@@ -2,7 +2,6 @@
 <launch>
 
   <arg name="map_file" default="$(find agribot_map)/maps/map.yaml"/>
-  <arg name="uid" default="xhMK5aMLSZOo5rsS67xlTw9dg5o1" />
   <arg name="rsn" default="ADI75R1" />
   <arg name="path_synchronization" default="true" />
 
@@ -11,7 +10,7 @@
   </include>
 
   <include if="$(arg path_synchronization)" file="$(find agribot_map)/launch/path_synchronization_node.launch">
-    <arg name="uid" value="$(arg uid)"/>
+    <arg name="rsn" value="$(arg rsn)"/>
   </include>
 
   <include if="$(arg path_synchronization)" file="$(find agribot_map)/launch/task_node.launch">

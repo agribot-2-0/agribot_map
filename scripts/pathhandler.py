@@ -95,8 +95,9 @@ class PathHandler(object):
         return self.paths_path + "/" + path_nm + ".yaml"
 
     def initialize_connection_with_firestore(self, certificate_file):
-        cred = credentials.Certificate(certificate_file)
-        firebase_admin.initialize_app(cred)
+        if not firebase_admin._apps:  # pylint: disable=protected-access
+            cred = credentials.Certificate(certificate_file)
+            firebase_admin.initialize_app(cred)
         self.bucket = storage.bucket(self.bucket_name)
         if not self.bucket.exists():
             return False
