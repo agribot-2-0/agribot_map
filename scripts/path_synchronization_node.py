@@ -37,7 +37,7 @@ def node():
 
     uids = task_sync.get_uids()
 
-    pathhandle = PathHandler(uids[0], rospack.get_path('agribot_map'))
+    pathhandle = PathHandler(uids[-1], rospack.get_path('agribot_map'))
     try:
         ret = pathhandle.initialize_connection_with_firestore(
             key_path + "agribot-cd437-firebase-adminsdk" +
