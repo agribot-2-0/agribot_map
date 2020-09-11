@@ -22,9 +22,12 @@ class TaskSync(object):
             self.rsn).collection('tasks')
 
     def get_uids(self):
-        users = self.database.collection(u'robots').document(
-            self.rsn).collection('users').stream()
         uids = []
-        for user in users:
-            uids.append(user.id)
+        users_ref = self.database.collection(u'users').stream()
+        for user in users_ref:
+            robots_ref = self.database.collection(u'users').document(
+                user.id).collection('robots').stream()
+            for robot in robots_ref:
+                if robot.id == self.rsn:
+                    uids.append(user.id)
         return uids
