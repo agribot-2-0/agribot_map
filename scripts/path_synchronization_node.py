@@ -40,9 +40,12 @@ def node():
     pathhandle = PathHandler(uids[-1], rospack.get_path('agribot_map'))
     try:
         ret = pathhandle.initialize_connection_with_firestore(
-            key_path + "agribot-cd437-firebase-adminsdk" +
-            "-ypr8o-5e1109055d.json")
+            key_path + "agribot-cd437-firebase-adminsdk-ypr8o-5e1109055d.json")
     except exceptions.Forbidden as my_except:
+        rospy.logerr(
+            "[Path synchronization node] Exeption: {}".format(my_except))
+        return
+    except exceptions.TooManyRequests as my_except:
         rospy.logerr(
             "[Path synchronization node] Exeption: {}".format(my_except))
         return
