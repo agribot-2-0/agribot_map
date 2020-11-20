@@ -19,15 +19,15 @@ def node():
 
     # init path handling object:
     rospack = rospkg.RosPack()
-    key_path = rospack.get_path('agribot_map') + "/key/"
+    key_path = path.join(rospack.get_path('agribot_map'), "key")
+    key_file = path.join(
+        key_path, "agribot-cd437-firebase-adminsdk-ypr8o-5e1109055d.json")
     if not path.exists(key_path):
         rospy.logerr("[Path synchronization node] Key folder not present.")
         return
 
     task_sync = TaskSync(rsn)
-    ret_val = task_sync.initialize_connection_with_firestore(
-        key_path + "agribot-cd437-" +
-        "firebase-adminsdk-ypr8o-5e1109055d.json")
+    ret_val = task_sync.initialize_connection_with_firestore(key_file)
 
     if not ret_val:
         rospy.logerr(
@@ -37,12 +37,19 @@ def node():
 
     uids = task_sync.get_uids()
 
+    if not uids:
+        rospy.logerr(
+            "[Path synchronization node] Robot is not assigned to any user")
+        return
+
     pathhandle = PathHandler(uids[-1], rospack.get_path('agribot_map'))
     try:
-        ret = pathhandle.initialize_connection_with_firestore(
-            key_path + "agribot-cd437-firebase-adminsdk" +
-            "-ypr8o-5e1109055d.json")
+        ret = pathhandle.initialize_connection_with_firestore(key_file)
     except exceptions.Forbidden as my_except:
+        rospy.logerr(
+            "[Path synchronization node] Exeption: {}".format(my_except))
+        return
+    except exceptions.TooManyRequests as my_except:
         rospy.logerr(
             "[Path synchronization node] Exeption: {}".format(my_except))
         return

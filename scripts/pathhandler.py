@@ -7,6 +7,7 @@ import yaml
 import numpy as np
 import firebase_admin
 from firebase_admin import credentials, storage
+import rospy
 
 
 class PathHandler(object):
@@ -15,17 +16,15 @@ class PathHandler(object):
 
     bucket = None
     bucket_name = 'agribot-cd437.appspot.com'
-    ros_pack_path = ""
     path_ver_path = ""
-    user_id = ""
+    user_paths = ""
     paths = dict()  # index=path_name, value=path_version
     position_number = 0
 
     def __init__(self, user_id, pack_path):
-        self.user_id = user_id + "/paths"
-        self.ros_pack_path = pack_path
-        self.path_ver_path = self.ros_pack_path + "/paths_ver.yaml"
-        self.paths_path = self.ros_pack_path + "/paths"
+        self.user_paths = os.path.join(user_id, "paths")
+        self.path_ver_path = os.path.join(pack_path, "paths_ver.yaml")
+        self.paths_path = os.path.join(pack_path, "paths")
 
         try:
             with open(self.path_ver_path) as file_:
@@ -58,7 +57,7 @@ class PathHandler(object):
             ]))
 
     def get_all_user_paths(self, blob_nam):
-        return list(filter(lambda k: self.user_id in k, blob_nam))
+        return list(filter(lambda k: self.user_paths in k, blob_nam))
 
     def get_pose(self, latitude, longitude, ind):
         pose = dict()
@@ -70,13 +69,17 @@ class PathHandler(object):
         return pose
 
     def parse_path_name(self, blb):
-        return blb[len(self.user_id) + 1:len(blb)].split("_v")[0]
+        return blb[len(self.user_paths) + 1:len(blb)].split("_v")[0]
 
     def parse_path_number(self, blb):
-        return int((blb[len(self.user_id) + 1:len(blb)].split("_v")[1])[:-4])
+        return int(
+            (blb[len(self.user_paths) + 1:len(blb)].split("_v")[1])[:-4])
 
     def get_all_blobs_from_bucket(self, blb_name):
-        for blobs in self.bucket.list_blobs():
+        for blobs in self.bucket.list_blobs(prefix=self.user_paths):
+            # if it is an user folder name, don't add it to blb_name
+            if blobs.name == self.user_paths + "/":
+                continue
             blb_name.append(blobs.name)
         return blb_name
 
@@ -130,13 +133,11 @@ class PathHandler(object):
         is_new_path_availible = False
 
         blobs_names = self.get_all_blobs_from_bucket(blobs_names)
-        blobs_names = self.get_all_user_paths(blobs_names)
 
-        if len(blobs_names) < 1:
-            print("[Path synchronization node] User folder does not exists")
+        if not blobs_names:
+            rospy.logerr(
+                "[Path synchronization node] User folder does not exists")
             return False
-        #delete first element, because it is user folder name
-        del blobs_names[0]
 
         for blob in blobs_names:
             path_nam = self.parse_path_name(blob)
@@ -154,6 +155,6 @@ class PathHandler(object):
             with open(self.path_ver_path, "w") as file_:
                 yaml.safe_dump(self.paths, file_)
         except IOError:
-            print("Error opening YAML file.")
+            rospy.logerr("Error opening YAML file.")
 
         return is_new_path_availible
