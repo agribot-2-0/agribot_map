@@ -16,17 +16,15 @@ class PathHandler(object):
 
     bucket = None
     bucket_name = 'agribot-cd437.appspot.com'
-    ros_pack_path = ""
     path_ver_path = ""
     user_paths = ""
     paths = dict()  # index=path_name, value=path_version
     position_number = 0
 
     def __init__(self, user_id, pack_path):
-        self.user_paths = user_id + "/paths"
-        self.ros_pack_path = pack_path
-        self.path_ver_path = self.ros_pack_path + "/paths_ver.yaml"
-        self.paths_path = self.ros_pack_path + "/paths"
+        self.user_paths = os.path.join(user_id, "paths")
+        self.path_ver_path = os.path.join(pack_path, "paths_ver.yaml")
+        self.paths_path = os.path.join(pack_path, "paths")
 
         try:
             with open(self.path_ver_path) as file_:
