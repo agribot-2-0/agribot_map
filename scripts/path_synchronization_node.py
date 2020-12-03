@@ -11,11 +11,11 @@ from task_class import TaskSync
 
 def node():
     rospy.init_node('path_synchronization_node')
-    if len(sys.argv) < 2:
-        rospy.logerr("[Path synchronization node] RSN not specified.")
+    if not rospy.has_param('rsn'):
+        rospy.logerr("[Path synchronization node] rsn param not set")
         return
 
-    rsn = sys.argv[1]
+    rsn = rospy.get_param('rsn')
 
     # init path handling object:
     rospack = rospkg.RosPack()

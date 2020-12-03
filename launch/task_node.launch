@@ -1,7 +1,6 @@
 <launch>
+  <rosparam command="load" file="$(find agribot_common)/config/bringup/robot.yaml" />
 
-  <arg name="rsn" default="ADI75R1" />
-
-  <node name="task_node" pkg="agribot_map" type="task_node.py" args="$(arg rsn)" />
+  <node name="task_node" pkg="agribot_map" type="task_node.py" />
 
 </launch>

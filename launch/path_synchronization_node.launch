@@ -1,7 +1,6 @@
 <launch>
+  <rosparam command="load" file="$(find agribot_common)/config/bringup/robot.yaml" />
 
-  <arg name="rsn" default="ADI75R1" />
-
-  <node name="agribot_path_synchronization" pkg="agribot_map" type="path_synchronization_node.py" args="$(arg rsn)" output="screen" />
+  <node name="agribot_path_synchronization" pkg="agribot_map" type="path_synchronization_node.py" output="screen" />
 
 </launch>

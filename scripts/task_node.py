@@ -35,11 +35,11 @@ def write_yaml(doc):
 
 def node():
     rospy.init_node('task_node')
-    if len(sys.argv) < 2:
-        rospy.logerr("[TaskNode] RSN not specified.")
+    if not rospy.has_param('rsn'):
+        rospy.logerr("[TaskNode] rsn param not set")
         return
 
-    rsn = sys.argv[1]
+    rsn = rospy.get_param('rsn')
 
     # init task handling object:
     rospack = rospkg.RosPack()
