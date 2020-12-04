@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import sys
 from os import path
 import rospy
 import rospkg
@@ -9,19 +8,36 @@ from google.api_core import exceptions
 from task_class import TaskSync
 
 
-def node():
+def if_param_exists(param_name):
+    if not rospy.has_param(param_name):
+        rospy.logerr(
+            "[AgribotTaskSupervisor] '{}' param not set".format(param_name))
+        return False
+    else:
+        return True
+
+
+def node():  # pylint: disable=too-many-return-statements, too-many-branches
     rospy.init_node('path_synchronization_node')
-    if not rospy.has_param('rsn'):
-        rospy.logerr("[Path synchronization node] rsn param not set")
+    if if_param_exists('rsn'):
+        rsn = rospy.get_param('rsn')
+    else:
         return
 
-    rsn = rospy.get_param('rsn')
+    if if_param_exists('certificate_file'):
+        certificate_file = rospy.get_param('certificate_file')
+    else:
+        return
+
+    if if_param_exists('certificate_repo'):
+        certificate_repo = rospy.get_param('certificate_repo')
+    else:
+        return
 
     # init path handling object:
     rospack = rospkg.RosPack()
-    key_path = path.join(rospack.get_path('agribot_map'), "key")
-    key_file = path.join(
-        key_path, "agribot-cd437-firebase-adminsdk-ypr8o-5e1109055d.json")
+    key_path = path.join(rospack.get_path(certificate_repo), "key")
+    key_file = path.join(key_path, certificate_file)
     if not path.exists(key_path):
         rospy.logerr("[Path synchronization node] Key folder not present.")
         return

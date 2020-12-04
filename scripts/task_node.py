@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function
-
-import sys
 import os
 import threading
 import shutil
@@ -33,25 +30,41 @@ def write_yaml(doc):
         yaml.dump(dict_to_write, outfile, default_flow_style=False)
 
 
-def node():
+def if_param_exists(param_name):
+    if not rospy.has_param(param_name):
+        rospy.logerr(
+            "[AgribotTaskSupervisor] '{}' param not set".format(param_name))
+        return False
+    return True
+
+
+def node():  # pylint: disable=too-many-return-statements, too-many-branches
     rospy.init_node('task_node')
-    if not rospy.has_param('rsn'):
-        rospy.logerr("[TaskNode] rsn param not set")
+    if if_param_exists('rsn'):
+        rsn = rospy.get_param('rsn')
+    else:
         return
 
-    rsn = rospy.get_param('rsn')
+    if if_param_exists('certificate_repo'):
+        certificate_repo = rospy.get_param('certificate_repo')
+    else:
+        return
+
+    if if_param_exists('certificate_file'):
+        certificate_file = rospy.get_param('certificate_file')
+    else:
+        return
 
     # init task handling object:
     rospack = rospkg.RosPack()
-    key_path = rospack.get_path('agribot_map') + "/key/"
+    key_path = os.path.join(rospack.get_path(certificate_repo), "key")
     if not os.path.exists(key_path):
         rospy.logerr("[TaskNode] Key folder not present.")
         return
 
     task_sync = TaskSync(rsn)
     ret = task_sync.initialize_connection_with_firestore(
-        key_path + "agribot-cd437-" +
-        "firebase-adminsdk-ypr8o-5e1109055d.json")
+        os.path.join(key_path, certificate_file))
 
     if not ret:
         rospy.logerr(

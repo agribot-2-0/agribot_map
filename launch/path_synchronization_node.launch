@@ -1,5 +1,6 @@
 <launch>
   <rosparam command="load" file="$(find agribot_common)/config/bringup/robot.yaml" />
+  <rosparam command="load" file="$(find agribot_common)/config/bringup/firebase.yaml" />
 
   <node name="agribot_path_synchronization" pkg="agribot_map" type="path_synchronization_node.py" output="screen" />
 

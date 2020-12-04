@@ -1,5 +1,6 @@
 <launch>
   <rosparam command="load" file="$(find agribot_common)/config/bringup/robot.yaml" />
+  <rosparam command="load" file="$(find agribot_common)/config/bringup/firebase.yaml" />
 
   <node name="task_node" pkg="agribot_map" type="task_node.py" />
 
