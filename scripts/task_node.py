@@ -45,8 +45,8 @@ def node():  # pylint: disable=too-many-return-statements, too-many-branches
     else:
         return
 
-    if if_param_exists('certificate_repo'):
-        certificate_repo = rospy.get_param('certificate_repo')
+    if if_param_exists('certificate_path'):
+        certificate_path = rospy.get_param('certificate_path')
     else:
         return
 
@@ -56,10 +56,9 @@ def node():  # pylint: disable=too-many-return-statements, too-many-branches
         return
 
     # init task handling object:
-    rospack = rospkg.RosPack()
-    key_path = os.path.join(rospack.get_path(certificate_repo), "key")
+    key_path = os.path.join(os.environ.get('AGRIBOT_HOME'), certificate_path)
     if not os.path.exists(key_path):
-        rospy.logerr("[TaskNode] Key folder not present.")
+        rospy.logerr("[AgribotTaskSupervisor] Key folder not present")
         return
 
     task_sync = TaskSync(rsn)

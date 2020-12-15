@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from os import path
+import os
 import rospy
 import rospkg
 from std_msgs.msg import String
@@ -29,17 +29,19 @@ def node():  # pylint: disable=too-many-return-statements, too-many-branches
     else:
         return
 
-    if if_param_exists('certificate_repo'):
-        certificate_repo = rospy.get_param('certificate_repo')
+    if if_param_exists('certificate_path'):
+        certificate_path = rospy.get_param('certificate_path')
     else:
         return
 
     # init path handling object:
     rospack = rospkg.RosPack()
-    key_path = path.join(rospack.get_path(certificate_repo), "key")
-    key_file = path.join(key_path, certificate_file)
-    if not path.exists(key_path):
-        rospy.logerr("[Path synchronization node] Key folder not present.")
+    key_path = os.path.join(os.environ.get('AGRIBOT_HOME'), certificate_path)
+    key_file = os.path.join(key_path, certificate_file)
+    if not os.path.exists(key_path):
+        rospy.logerr(
+            "[AgribotTaskSupervisor] Key folder {} not present".format(
+                key_path))
         return
 
     task_sync = TaskSync(rsn)
