@@ -1,7 +1,7 @@
 <launch>
+  <rosparam command="load" file="$(env AGRIBOT_HOME)/agribot/configs/base/robot.yaml" />
+  <rosparam command="load" file="$(env AGRIBOT_HOME)/agribot/configs/base/firebase.yaml" />
 
-  <arg name="rsn" default="ADI75R1" />
-
-  <node name="agribot_path_synchronization" pkg="agribot_map" type="path_synchronization_node.py" args="$(arg rsn)" output="screen" />
+  <node name="agribot_path_synchronization" pkg="agribot_map" type="path_synchronization_node.py" output="screen" />
 
 </launch>
