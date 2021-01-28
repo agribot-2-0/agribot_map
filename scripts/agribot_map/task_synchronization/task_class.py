@@ -1,12 +1,16 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+import os
+import yaml
 
 
 class TaskSync(object):
-    def __init__(self, rsn):
+    def __init__(self, rsn, tasks_path, event):
         self.database = None
         self.rsn = rsn  # robot serial number
+        self.callback_done = event
+        self.tasks_path = tasks_path
 
     def initialize_connection_with_firestore(self, certificate_file):
         if not firebase_admin._apps:  # pylint: disable=protected-access
@@ -31,3 +35,19 @@ class TaskSync(object):
                 if robot.id == self.rsn:
                     uids.append(user.id)
         return uids
+
+    def firebase_callback(self, doc_snapshot, changes, read_time):  # pylint: disable=unused-argument
+        for change in changes:
+            if change.type.name == 'ADDED':
+                self.write_yaml(change.document)
+            elif change.type.name == 'MODIFIED':
+                self.write_yaml(change.document)
+        self.callback_done.set()
+
+    def write_yaml(self, doc):
+        doc_file_name = doc.id + '.yaml'
+        file_name = os.path.join(self.tasks_path, doc_file_name)
+        dict_to_write = dict(task=dict(
+            path_name=[doc.to_dict()['path_name'].encode('ascii', 'ignore')]))
+        with open(file_name, 'w') as outfile:
+            yaml.dump(dict_to_write, outfile, default_flow_style=False)

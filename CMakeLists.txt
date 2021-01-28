@@ -12,15 +12,15 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-install(DIRECTORY launch maps tasks paths osm
+install(DIRECTORY launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   PATTERN ".svn" EXCLUDE
 )
 
+catkin_python_setup()
+
 catkin_install_python(PROGRAMS
-   scripts/path_synchronization_node.py
-   scripts/pathhandler.py
-   scripts/task_class.py
-   scripts/task_node.py
+   scripts/agribot_map/path_synchronization/path_synchronization_node.py
+   scripts/agribot_map/task_synchronization/task_node.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

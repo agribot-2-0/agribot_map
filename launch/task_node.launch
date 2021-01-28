@@ -1,6 +1,7 @@
 <launch>
   <rosparam command="load" file="$(env AGRIBOT_HOME)/agribot/configs/base/robot.yaml" />
   <rosparam command="load" file="$(env AGRIBOT_HOME)/agribot/configs/base/firebase.yaml" />
+  <rosparam command="load" file="$(env AGRIBOT_HOME)/agribot/configs/base/map/config.yaml" />
 
   <node name="task_node" pkg="agribot_map" type="task_node.py" />
 
