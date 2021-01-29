@@ -7,7 +7,6 @@ import yaml
 import numpy as np
 import firebase_admin
 from firebase_admin import credentials, storage
-import rospy
 
 
 class PathHandler(object):
@@ -123,8 +122,8 @@ class PathHandler(object):
             lon = self.extract_lon(path_points)
             lat = self.extract_lat(path_points)
         else:
-            raise Exception("Wrong format of path or path empty: " +
-                            str(path_name))
+            raise IOError("Wrong format of path or path empty: " +
+                          str(path_name))
 
         self.save_to_yaml(lon, lat, path_name)
 
@@ -133,7 +132,7 @@ class PathHandler(object):
         blobs_names = self.get_all_blobs_from_bucket(blobs_names)
 
         if not blobs_names:
-            raise Exception("User folder does not exists")
+            raise IOError("User folder does not exists")
 
         for blob in blobs_names:
             path_name = self.parse_path_name(blob)
@@ -149,6 +148,6 @@ class PathHandler(object):
             with open(self.path_ver_path, "w") as file_:
                 yaml.safe_dump(self.paths, file_)
         except IOError:
-            raise Exception("Error opening YAML file.")
+            raise IOError("Error opening YAML file.")
 
         return path_name

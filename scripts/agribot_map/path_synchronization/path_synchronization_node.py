@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import os
-import rospy
-import rospkg
 import threading
-from std_msgs.msg import String
+import rospy
 from agribot_map.path_synchronization.pathhandler import PathHandler
 from agribot_map.task_synchronization.task_class import TaskSync
 from google.api_core import exceptions
@@ -13,24 +11,24 @@ LOG_TAG = "PathSynchronizationNode"
 
 def get_param(param_name):
     if not rospy.has_param(param_name):
-        raise Exception("[{}] '{}' param not set".format(LOG_TAG, param_name))
+        raise ValueError("[{}] '{}' param not set".format(LOG_TAG, param_name))
     return rospy.get_param(param_name)
 
 
-def node():  # pylint: disable=too-many-return-statements, too-many-branches
+def node():  # pylint: disable=too-many-return-statements, too-many-branches, too-many-locals
     rospy.init_node('path_synchronization_node')
 
     try:
         rsn = get_param('rsn')
-        certificate_file = get_param('certificate_file')
         certificate_path = get_param('certificate_path')
-        agribot_map_config_path = os.path.join(
-            os.environ.get('AGRIBOT_HOME'),
-            get_param('agribot_map_paths_path'))
+        certificate_file = get_param('certificate_file')
         agribot_map_tasks_path = os.path.join(
             os.environ.get('AGRIBOT_HOME'),
             get_param('agribot_map_tasks_path'))
-    except Exception as exception_msg:
+        agribot_map_config_path = os.path.join(
+            os.environ.get('AGRIBOT_HOME'),
+            get_param('agribot_map_paths_path'))
+    except ValueError as exception_msg:
         rospy.logerr(exception_msg)
         return
 
@@ -80,7 +78,7 @@ def node():  # pylint: disable=too-many-return-statements, too-many-branches
             if path_name:
                 rospy.logwarn("[{}] Download path {}".format(
                     LOG_TAG, path_name))
-        except Exception as exception_msg:
+        except IOError as exception_msg:
             rospy.logerr(exception_msg)
 
         rate.sleep()

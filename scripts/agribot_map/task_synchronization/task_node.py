@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import os
 import threading
-import shutil
 import rospy
-import rospkg
 from agribot_map.task_synchronization.task_class import TaskSync
 
 LOG_TAG = "TaskSynchronizationNode"
@@ -11,7 +9,7 @@ LOG_TAG = "TaskSynchronizationNode"
 
 def get_param(param_name):
     if not rospy.has_param(param_name):
-        raise Exception("[{}] '{}' param not set".format(LOG_TAG, param_name))
+        raise ValueError("[{}] '{}' param not set".format(LOG_TAG, param_name))
     return rospy.get_param(param_name)
 
 
@@ -24,7 +22,7 @@ def node():  # pylint: disable=too-many-return-statements, too-many-branches
         agribot_map_tasks_path = os.path.join(
             os.environ.get('AGRIBOT_HOME'),
             get_param('agribot_map_tasks_path'))
-    except Exception as exception_msg:
+    except ValueError as exception_msg:
         rospy.logerr(exception_msg)
         return
 
@@ -44,9 +42,9 @@ def node():  # pylint: disable=too-many-return-statements, too-many-branches
                 LOG_TAG))
         return
 
-    # Remove all cached tasks and make clean dir
-    shutil.rmtree(agribot_map_tasks_path)
-    os.makedirs(agribot_map_tasks_path)
+    # TODO: uncomment to remove all cached tasks and make clean dir
+    # shutil.rmtree(agribot_map_tasks_path)
+    # os.makedirs(agribot_map_tasks_path)
 
     # Watch the document
     task_sync.get_doc_ref().on_snapshot(task_sync.firebase_callback)
