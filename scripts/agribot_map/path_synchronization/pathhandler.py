@@ -7,7 +7,6 @@ import yaml
 import numpy as np
 import firebase_admin
 from firebase_admin import credentials, storage
-import rospy
 
 
 class PathHandler(object):
@@ -116,45 +115,39 @@ class PathHandler(object):
                 yaml.safe_dump(self.get_pose(latitude, longitude, i), file_)
         file_.close()
 
-    def download_path(self, blob_name, path_nam):
+    def download_path(self, blob_name, path_name):
         blob_name = self.bucket.blob(blob_name)
         path_points = self.get_path_points_from_blob(blob_name)
         if path_points:
             lon = self.extract_lon(path_points)
             lat = self.extract_lat(path_points)
         else:
-            raise Exception("Wrong format of path or path empty: " +
-                            str(path_nam))
+            raise IOError("Wrong format of path or path empty: " +
+                          str(path_name))
 
-        self.save_to_yaml(lon, lat, path_nam)
+        self.save_to_yaml(lon, lat, path_name)
 
     def sync_paths(self):
         blobs_names = []
-        is_new_path_availible = False
-
         blobs_names = self.get_all_blobs_from_bucket(blobs_names)
 
         if not blobs_names:
-            rospy.logerr(
-                "[Path synchronization node] User folder does not exists")
-            return False
+            raise IOError("User folder does not exists")
 
         for blob in blobs_names:
-            path_nam = self.parse_path_name(blob)
+            path_name = self.parse_path_name(blob)
             path_ver = self.parse_path_number(blob)
-            if path_nam in self.paths:
-                if self.paths[path_nam] < path_ver:
-                    self.paths[path_nam] = path_ver
-                    self.download_path(blob, path_nam)
-                    is_new_path_availible = True
+            if path_name in self.paths:
+                if self.paths[path_name] < path_ver:
+                    self.paths[path_name] = path_ver
+                    self.download_path(blob, path_name)
             else:
-                self.paths[path_nam] = path_ver
-                self.download_path(blob, path_nam)
-                is_new_path_availible = True
+                self.paths[path_name] = path_ver
+                self.download_path(blob, path_name)
         try:
             with open(self.path_ver_path, "w") as file_:
                 yaml.safe_dump(self.paths, file_)
         except IOError:
-            rospy.logerr("Error opening YAML file.")
+            raise IOError("Error opening YAML file.")
 
-        return is_new_path_availible
+        return path_name

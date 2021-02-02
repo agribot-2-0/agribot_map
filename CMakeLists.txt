@@ -6,21 +6,33 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
 )
 
+catkin_python_setup()
+
 catkin_package()
+
+###########
+## Build ##
+###########
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-install(DIRECTORY launch maps tasks paths osm
+#############
+## Install ##
+#############
+
+install(DIRECTORY launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   PATTERN ".svn" EXCLUDE
 )
 
 catkin_install_python(PROGRAMS
-   scripts/path_synchronization_node.py
-   scripts/pathhandler.py
-   scripts/task_class.py
-   scripts/task_node.py
+   scripts/agribot_map/path_synchronization/path_synchronization_node.py
+   scripts/agribot_map/task_synchronization/task_node.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+#############
+## Testing ##
+#############

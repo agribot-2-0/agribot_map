@@ -1,6 +1,7 @@
 <launch>
   <rosparam command="load" file="$(env AGRIBOT_HOME)/agribot/configs/base/robot.yaml" />
   <rosparam command="load" file="$(env AGRIBOT_HOME)/agribot/configs/base/firebase.yaml" />
+  <rosparam command="load" file="$(env AGRIBOT_HOME)/agribot/configs/base/map/config.yaml" />
 
   <node name="agribot_path_synchronization" pkg="agribot_map" type="path_synchronization_node.py" output="screen" />
 

@@ -1,0 +1,43 @@
+import os
+import threading
+import yaml
+from agribot_common.database.firestore import Firestore
+
+
+class TaskSynchronization(object):
+    def __init__(self, robot_serial_number, tasks_path, certificate_file):
+        self.task_collection_path = u"robots/{}/tasks".format(
+            robot_serial_number)
+        self.callback_done = threading.Event()
+        self.tasks_path = tasks_path
+        self.firestore = Firestore(certificate_file)
+
+    def run(self):
+        self.firestore.register_callback_on_collection_change(
+            self.task_collection_path, self.firebase_task_callback)
+
+    def firebase_task_callback(self, doc_snapshot, changes, read_time):  # pylint: disable=unused-argument
+        for change in changes:
+            if change.type.name == 'ADDED':
+                self.write_yaml(change.document)
+            elif change.type.name == 'MODIFIED':
+                self.write_yaml(change.document)
+            elif change.type.name == 'REMOVED':
+                self.delete_yaml(change.document)
+        self.callback_done.set()
+
+    def write_yaml(self, doc):
+        file_name = self.get_file_path(doc)
+        dict_to_write = dict(task=dict(
+            path_name=[doc.to_dict()['path_name'].encode('ascii', 'ignore')]))
+        with open(file_name, 'w') as outfile:
+            yaml.dump(dict_to_write, outfile, default_flow_style=False)
+
+    def delete_yaml(self, doc):
+        file_name = self.get_file_path(doc)
+        os.remove(file_name)
+
+    def get_file_path(self, doc):
+        doc_file_name = doc.id + '.yaml'
+        file_name = os.path.join(self.tasks_path, doc_file_name)
+        return file_name
