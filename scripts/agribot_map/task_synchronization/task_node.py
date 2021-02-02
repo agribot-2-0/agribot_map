@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+
 import os
-import rospy
 import threading
 import shutil
+import rospy
 from agribot_map.task_synchronization.task_synchronization import TaskSynchronization
 from agribot_common.agribot_parameters import get_parameter
 

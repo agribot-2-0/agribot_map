@@ -1,6 +1,6 @@
 import os
-import yaml
 import threading
+import yaml
 from agribot_common.database.firestore import Firestore
 
 
