@@ -20,7 +20,7 @@ def node():
             os.environ.get('AGRIBOT_HOME'),
             get_parameter('/agribot_map/paths_path'))
     except ValueError as exception_msg:
-        rospy.logerr(exception_msg)
+        rospy.logerr("[{}] {}".format(LOG_TAG, exception_msg))
         return
 
     key_path = os.path.join(os.environ.get('AGRIBOT_HOME'), certificate_path)
@@ -30,15 +30,18 @@ def node():
             LOG_TAG, key_path))
         return
 
-    firestore = Firestore(key_file)
-    uids = firestore.get_uids_for_rsn(rsn)
-
-    if not uids:
-        rospy.logerr("[{}] Robot is not assigned to any user".format(LOG_TAG))
+    try:
+        firestore = Firestore(key_file)
+        uids = firestore.get_uids_for_rsn(rsn)
+    except ValueError as exception_msg:
+        rospy.logerr("[{}] {}".format(LOG_TAG, exception_msg))
         return
 
-    pathhandle = PathHandler(uids[-1], agribot_map_config_path)
     try:
+        # TODO: Add path synchronization for many asigned users
+        # right now take one user from all asigned users
+        user_id = uids[-1]
+        pathhandle = PathHandler(user_id, agribot_map_config_path)
         ret = pathhandle.initialize_connection_with_firestore(key_file)
     except exceptions.Forbidden as my_except:
         rospy.logerr("[{}] Exeption: {}".format(LOG_TAG, my_except))
