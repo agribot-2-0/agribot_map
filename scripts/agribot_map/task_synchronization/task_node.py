@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import threading
 import shutil
 import rospy
 from agribot_map.task_synchronization.task_synchronization import TaskSynchronization
@@ -24,7 +23,6 @@ def node():
         rospy.logerr("[{}] {}".format(LOG_TAG, exception_msg))
         return
 
-    # init task handling object:
     key_path = os.path.join(os.environ.get('AGRIBOT_HOME'), certificate_path)
     if not os.path.exists(key_path):
         rospy.logerr("[{}] Key folder '{}' not present".format(

@@ -1,33 +1,28 @@
 #!/usr/bin/env python
 import os
-import threading
 import rospy
 from agribot_common.agribot_parameters import get_parameter
+from agribot_common.database.firestore import Firestore
 from agribot_map.path_synchronization.pathhandler import PathHandler
-from agribot_map.task_synchronization.task_class import TaskSync
 from google.api_core import exceptions
 
 LOG_TAG = "PathSynchronizationNode"
 
 
-def node():  # pylint: disable=too-many-locals
+def node():
     rospy.init_node('path_synchronization_node')
 
     try:
         rsn = get_parameter('rsn')
         certificate_path = get_parameter('certificate_path')
         certificate_file = get_parameter('certificate_file')
-        agribot_map_tasks_path = os.path.join(
-            os.environ.get('AGRIBOT_HOME'),
-            get_parameter('agribot_map_tasks_path'))
         agribot_map_config_path = os.path.join(
             os.environ.get('AGRIBOT_HOME'),
-            get_parameter('agribot_map_paths_path'))
+            get_parameter('/agribot_map/paths_path'))
     except ValueError as exception_msg:
         rospy.logerr(exception_msg)
         return
 
-    # init path handling object:
     key_path = os.path.join(os.environ.get('AGRIBOT_HOME'), certificate_path)
     key_file = os.path.join(key_path, certificate_file)
     if not os.path.exists(key_path):
@@ -35,16 +30,8 @@ def node():  # pylint: disable=too-many-locals
             LOG_TAG, key_path))
         return
 
-    task_sync = TaskSync(rsn, agribot_map_tasks_path, threading.Event())
-    ret_val = task_sync.initialize_connection_with_firestore(key_file)
-
-    if not ret_val:
-        rospy.logerr(
-            "[{}] Bucket does not exist. Initialization failed.".format(
-                LOG_TAG))
-        return
-
-    uids = task_sync.get_uids()
+    firestore = Firestore(key_file)
+    uids = firestore.get_uids_for_rsn(rsn)
 
     if not uids:
         rospy.logerr("[{}] Robot is not assigned to any user".format(LOG_TAG))
@@ -69,10 +56,7 @@ def node():  # pylint: disable=too-many-locals
     rate = rospy.Rate(0.1)
     while not rospy.is_shutdown():
         try:
-            path_name = pathhandle.sync_paths()
-            if path_name:
-                rospy.logwarn("[{}] Download path {}".format(
-                    LOG_TAG, path_name))
+            pathhandle.sync_paths()
         except IOError as exception_msg:
             rospy.logerr(exception_msg)
 
