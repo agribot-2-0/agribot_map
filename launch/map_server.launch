@@ -1,8 +1,6 @@
 <launch>
 
-  <!-- MAP_SERVER -->
-  <arg name="map_file" default="$(find agribot_map)/maps/map.yaml" />
-
-  <node pkg="map_server" type="map_server" name="map_server" args="$(arg map_file)" />
+  <node pkg="map_server" type="map_server" name="map_server"
+        args="$(env AGRIBOT_HOME)/agribot/configs/base/map/maps/map.yaml" />
 
 </launch>
