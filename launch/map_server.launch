@@ -1,6 +1,6 @@
 <launch>
 
   <node pkg="map_server" type="map_server" name="map_server"
-        args="$(env AGRIBOT_HOME)/agribot/configs/base/map/maps/map.yaml" />
+        args="$(env AGRIBOT_MAP)" />
 
 </launch>
