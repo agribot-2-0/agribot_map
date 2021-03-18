@@ -59,7 +59,9 @@ def node():
     rate = rospy.Rate(0.1)
     while not rospy.is_shutdown():
         try:
-            pathhandle.sync_paths()
+            downloaded_paths = pathhandle.sync_paths()
+            if downloaded_paths:
+                rospy.logwarn("[{}] New paths downloaded: {}".format(LOG_TAG, downloaded_paths))
         except IOError as exception_msg:
             rospy.logerr(exception_msg)
 

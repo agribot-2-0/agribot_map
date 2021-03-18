@@ -127,9 +127,13 @@ class PathHandler(object):
 
         self.save_to_yaml(lon, lat, path_name)
 
+    def get_crc32(self, blob_name):
+        return self.bucket.get_blob(blob_name).crc32c
+
     def sync_paths(self):
         blobs_names = []
         blobs_names = self.get_all_blobs_from_bucket(blobs_names)
+        downloaded_paths = []
 
         if not blobs_names:
             raise IOError("User folder does not exists")
@@ -137,17 +141,20 @@ class PathHandler(object):
         for blob in blobs_names:
             path_name = self.parse_path_name(blob)
             path_ver = self.parse_path_number(blob)
+            crc32 = self.get_crc32(blob)
             if path_name in self.paths:
-                if self.paths[path_name] < path_ver:
-                    self.paths[path_name] = path_ver
+                if self.paths[path_name][0] < path_ver or self.paths[path_name][1] != crc32:
+                    self.paths[path_name] = (path_ver, crc32)
                     self.download_path(blob, path_name)
+                    downloaded_paths.append(str(path_name))
             else:
-                self.paths[path_name] = path_ver
+                self.paths[path_name] = (path_ver, crc32)
                 self.download_path(blob, path_name)
+                downloaded_paths.append(str(path_name))
         try:
             with open(self.path_ver_path, "w") as file_:
                 yaml.safe_dump(self.paths, file_)
         except IOError:
             raise IOError("Error opening YAML file.")
 
-        return path_name
+        return downloaded_paths
