@@ -4,7 +4,7 @@ import rospy
 from agribot_common.agribot_parameters import get_parameter
 from agribot_common.database.firestore import Firestore
 from agribot_map.path_synchronization.pathhandler import PathHandler
-from google.api_core import exceptions
+import google.api_core.exceptions
 
 LOG_TAG = "PathSynchronizationNode"
 
@@ -16,9 +16,8 @@ def node():
         rsn = get_parameter('rsn')
         certificate_path = get_parameter('certificate_path')
         certificate_file = get_parameter('certificate_file')
-        agribot_map_config_path = os.path.join(
-            os.environ.get('AGRIBOT_HOME'),
-            get_parameter('/agribot_map/paths_path'))
+        agribot_map_config_path = os.path.join(os.environ.get('AGRIBOT_HOME'),
+                                               get_parameter('/agribot_map/paths_path'))
     except ValueError as exception_msg:
         rospy.logerr("[{}] {}".format(LOG_TAG, exception_msg))
         return
@@ -26,8 +25,7 @@ def node():
     key_path = os.path.join(os.environ.get('AGRIBOT_HOME'), certificate_path)
     key_file = os.path.join(key_path, certificate_file)
     if not os.path.exists(key_path):
-        rospy.logerr("[{}] Key folder {} not present".format(
-            LOG_TAG, key_path))
+        rospy.logerr("[{}] Key folder {} not present".format(LOG_TAG, key_path))
         return
 
     try:
@@ -38,22 +36,16 @@ def node():
         return
 
     try:
-        # TODO: Add path synchronization for many asigned users
-        # right now take one user from all asigned users
+        # TODO: Add path synchronization for many assigned users
+        # right now take one user from all assigned users
         user_id = uids[-1]
         pathhandle = PathHandler(user_id, agribot_map_config_path)
         ret = pathhandle.initialize_connection_with_firestore(key_file)
-    except exceptions.Forbidden as my_except:
-        rospy.logerr("[{}] Exeption: {}".format(LOG_TAG, my_except))
+    except google.api_core.exceptions.GoogleAPIError as my_except:
+        rospy.logerr("[{}] Exception: {}".format(LOG_TAG, my_except))
         return
-    except exceptions.TooManyRequests as my_except:
-        rospy.logerr("[{}] Exeption: {}".format(LOG_TAG, my_except))
-        return
-
     if not ret:
-        rospy.logerr(
-            "[{}] Bucket does not exist. Initialization failed.".format(
-                LOG_TAG))
+        rospy.logerr("[{}] Bucket does not exist. Initialization failed.".format(LOG_TAG))
         return
 
     rate = rospy.Rate(0.1)
@@ -63,7 +55,7 @@ def node():
             if downloaded_paths:
                 rospy.logwarn("[{}] New paths downloaded: {}".format(LOG_TAG, downloaded_paths))
         except IOError as exception_msg:
-            rospy.logerr(exception_msg)
+            rospy.logerr("[{}] Exception: {}".format(LOG_TAG, exception_msg))
 
         rate.sleep()
 
