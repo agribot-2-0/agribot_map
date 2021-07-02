@@ -41,8 +41,8 @@ def node():
         user_id = uids[-1]
         pathhandle = PathHandler(user_id, agribot_map_config_path)
         ret = pathhandle.initialize_connection_with_firestore(key_file)
-    except google.api_core.exceptions.GoogleAPIError as my_except:
-        rospy.logerr("[{}] Exception: {}".format(LOG_TAG, my_except))
+    except google.api_core.exceptions.GoogleAPIError as exception_msg:
+        rospy.logerr("[{}] Exception: {}".format(LOG_TAG, exception_msg))
         return
     if not ret:
         rospy.logerr("[{}] Bucket does not exist. Initialization failed.".format(LOG_TAG))
