@@ -31,7 +31,7 @@ class TaskSynchronization(object):
         if tool_name == "*":
             tool = dict(angle=0,
                         height=0,
-                        yellow_valve_flow=0,
+                        red_valve_flow=0,
                         green_valve_flow=0,
                         blue_valve_flow=0,
                         pto_rpm=0,
