@@ -1,7 +1,6 @@
 import os
 import threading
 import yaml
-import rospy
 from agribot_common.database.firestore import Firestore
 
 
