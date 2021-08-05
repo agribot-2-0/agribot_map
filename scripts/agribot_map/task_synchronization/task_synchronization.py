@@ -1,20 +1,22 @@
 import os
 import threading
 import yaml
+import rospy
 from agribot_common.database.firestore import Firestore
 
 
 class TaskSynchronization(object):
     def __init__(self, robot_serial_number, tasks_path, certificate_file):
-        self.task_collection_path = u"robots/{}/tasks".format(
-            robot_serial_number)
+        self.task_collection_path = u"robots/{}/tasks".format(robot_serial_number)
         self.callback_done = threading.Event()
         self.tasks_path = tasks_path
         self.firestore = Firestore(certificate_file)
+        self.uids = self.firestore.get_uids_for_rsn(robot_serial_number)
+        self.user_id = self.uids[-1]
 
     def run(self):
-        self.firestore.register_callback_on_collection_change(
-            self.task_collection_path, self.firebase_task_callback)
+        self.firestore.register_callback_on_collection_change(self.task_collection_path,
+                                                              self.firebase_task_callback)
 
     def firebase_task_callback(self, doc_snapshot, changes, read_time):  # pylint: disable=unused-argument
         for change in changes:
@@ -26,10 +28,38 @@ class TaskSynchronization(object):
                 self.delete_yaml(change.document)
         self.callback_done.set()
 
+    def set_tool(self, tool_name):
+        if tool_name == "*":
+            tool = dict(angle=0,
+                        height=0,
+                        yellow_valve_flow=0,
+                        green_valve_flow=0,
+                        blue_valve_flow=0,
+                        pto_rpm=0,
+                        rfid=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        v_max=0)
+        else:
+            doc_tool_ref = self.firestore.database.collection('users').document(
+                self.user_id).collection('tools').document(tool_name)
+            doc_tool = doc_tool_ref.get()
+            tool = dict(angle=doc_tool.to_dict()['tpl_up_down'],
+                        height=doc_tool.to_dict()['tpl_push_pull'],
+                        yellow_valve_flow=doc_tool.to_dict()['yellow'],
+                        green_valve_flow=doc_tool.to_dict()['green'],
+                        blue_valve_flow=doc_tool.to_dict()['blue'],
+                        pto_rpm=doc_tool.to_dict()['pto'],
+                        rfid=doc_tool.to_dict()['rfid'],
+                        v_max=doc_tool.to_dict()['v_max'])
+        return tool
+
     def write_yaml(self, doc):
         file_name = self.get_file_path(doc)
-        dict_to_write = dict(task=dict(
-            path_name=[doc.to_dict()['path_name'].encode('ascii', 'ignore')]))
+
+        front_tool = self.set_tool(doc.to_dict()['front_tool_name'])
+        back_tool = self.set_tool(doc.to_dict()['back_tool_name'])
+
+        dict_to_write = dict(task=dict(path_name=[doc.to_dict()['path_name']],
+                                       tpl=dict(front=front_tool, back=back_tool)))
         with open(file_name, 'w') as outfile:
             yaml.dump(dict_to_write, outfile, default_flow_style=False)
 
