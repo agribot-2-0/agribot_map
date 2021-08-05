@@ -43,7 +43,7 @@ class TaskSynchronization(object):
             doc_tool = doc_tool_ref.get()
             tool = dict(angle=doc_tool.to_dict()['tpl_up_down'],
                         height=doc_tool.to_dict()['tpl_push_pull'],
-                        yellow_valve_flow=doc_tool.to_dict()['yellow'],
+                        red_valve_flow=doc_tool.to_dict()['yellow'],
                         green_valve_flow=doc_tool.to_dict()['green'],
                         blue_valve_flow=doc_tool.to_dict()['blue'],
                         pto_rpm=doc_tool.to_dict()['pto'],
