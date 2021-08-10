@@ -2,7 +2,6 @@ import os
 import threading
 import yaml
 from agribot_common.database.firestore import Firestore
-import rospy
 
 
 class TaskSynchronization(object):
@@ -75,8 +74,6 @@ class TaskSynchronization(object):
 
         with open(file_name, 'w') as outfile:
             yaml.dump(dict_to_write, outfile, default_flow_style=False)
-        rospy.logwarn(file_name)
-        rospy.logwarn(dict_to_write)
 
     def delete_yaml(self, doc):
         file_name = self.get_file_path(doc)
