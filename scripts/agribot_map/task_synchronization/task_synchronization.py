@@ -2,6 +2,7 @@ import os
 import threading
 import yaml
 from agribot_common.database.firestore import Firestore
+import rospy
 
 
 class TaskSynchronization(object):
@@ -27,6 +28,12 @@ class TaskSynchronization(object):
                 self.delete_yaml(change.document)
         self.callback_done.set()
 
+    def set_rfid(self, doc_tool):
+        rfid = []
+        for i in doc_tool.to_dict()['rfid']:
+            rfid.append(int(i))
+        return rfid
+
     def set_tool(self, tool_name):
         if tool_name == "*":
             tool = dict(angle=0,
@@ -47,20 +54,29 @@ class TaskSynchronization(object):
                         green_valve_flow=doc_tool.to_dict()['green'],
                         blue_valve_flow=doc_tool.to_dict()['blue'],
                         pto_rpm=doc_tool.to_dict()['pto'],
-                        rfid=doc_tool.to_dict()['rfid'],
+                        rfid=self.set_rfid(doc_tool),
                         v_max=doc_tool.to_dict()['v_max'])
         return tool
 
+    def set_path_name(self, doc):
+        if isinstance(doc.to_dict()['path_name'], str):
+            path_name = doc.to_dict()['path_name']
+        else:
+            path_name = doc.to_dict()['path_name'].encode('ascii', 'ignore')
+        return path_name
+
     def write_yaml(self, doc):
         file_name = self.get_file_path(doc)
-
         front_tool = self.set_tool(doc.to_dict()['front_tool_name'])
         back_tool = self.set_tool(doc.to_dict()['back_tool_name'])
 
-        dict_to_write = dict(task=dict(path_name=[doc.to_dict()['path_name']],
+        dict_to_write = dict(task=dict(path_name=[self.set_path_name(doc)],
                                        tpl=dict(front=front_tool, back=back_tool)))
+
         with open(file_name, 'w') as outfile:
             yaml.dump(dict_to_write, outfile, default_flow_style=False)
+        rospy.logwarn(file_name)
+        rospy.logwarn(dict_to_write)
 
     def delete_yaml(self, doc):
         file_name = self.get_file_path(doc)
