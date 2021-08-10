@@ -30,6 +30,7 @@ install(DIRECTORY launch
 catkin_install_python(PROGRAMS
    scripts/agribot_map/path_synchronization/path_synchronization_node.py
    scripts/agribot_map/task_synchronization/task_node.py
+   scripts/agribot_map/task_synchronization/set_yaml_fields.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
