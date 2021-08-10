@@ -2,7 +2,7 @@ import os
 import threading
 import yaml
 from agribot_common.database.firestore import Firestore
-from .set_yaml_fields import set_rfid, set_path_name
+from .set_yaml_fields import get_rfid_from_tool_doc, get_path_name_from_task_doc
 
 
 class TaskSynchronization(object):
@@ -48,7 +48,7 @@ class TaskSynchronization(object):
                         green_valve_flow=doc_tool.to_dict()['green'],
                         blue_valve_flow=doc_tool.to_dict()['blue'],
                         pto_rpm=doc_tool.to_dict()['pto'],
-                        rfid=set_rfid(doc_tool),
+                        rfid=get_rfid_from_tool_doc(doc_tool),
                         v_max=doc_tool.to_dict()['v_max'])
         return tool
 
@@ -57,8 +57,8 @@ class TaskSynchronization(object):
         front_tool = self.set_tool(doc.to_dict()['front_tool_name'])
         back_tool = self.set_tool(doc.to_dict()['back_tool_name'])
 
-        dict_to_write = dict(
-            task=dict(path_name=[set_path_name(doc)], tpl=dict(front=front_tool, back=back_tool)))
+        dict_to_write = dict(task=dict(path_name=[get_path_name_from_task_doc(doc)],
+                                       tpl=dict(front=front_tool, back=back_tool)))
 
         with open(file_name, 'w') as outfile:
             yaml.dump(dict_to_write, outfile, default_flow_style=False)
