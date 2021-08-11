@@ -30,8 +30,8 @@ class TaskSynchronization(object):
 
     def set_tool(self, tool_name):
         if tool_name == "*":
-            tool = dict(angle=0,
-                        height=0,
+            tool = dict(angle=0.8,
+                        height=0.05,
                         red_valve_flow=0,
                         green_valve_flow=0,
                         blue_valve_flow=0,
