@@ -2,7 +2,7 @@ import os
 import threading
 import yaml
 from agribot_common.database.firestore import Firestore
-from .set_yaml_fields import get_rfid_from_tool_doc, get_path_name_from_task_doc
+from agribot_map.task_synchronization.set_yaml_fields import get_rfid_from_tool_doc, get_path_name_from_task_doc
 
 
 class TaskSynchronization(object):
