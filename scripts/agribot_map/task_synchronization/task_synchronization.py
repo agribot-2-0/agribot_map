@@ -42,14 +42,14 @@ class TaskSynchronization(object):
             doc_tool_ref = self.firestore.database.collection('users').document(
                 self.user_id).collection('tools').document(tool_name)
             doc_tool = doc_tool_ref.get()
-            tool = dict(angle=doc_tool.to_dict()['tpl_up_down'],
-                        height=doc_tool.to_dict()['tpl_push_pull'],
-                        red_valve_flow=doc_tool.to_dict()['yellow'],
-                        green_valve_flow=doc_tool.to_dict()['green'],
-                        blue_valve_flow=doc_tool.to_dict()['blue'],
-                        pto_rpm=doc_tool.to_dict()['pto'],
+            tool = dict(angle=float(doc_tool.to_dict()['tpl_up_down']),
+                        height=float(doc_tool.to_dict()['tpl_push_pull']),
+                        red_valve_flow=int(doc_tool.to_dict()['yellow']),
+                        green_valve_flow=int(doc_tool.to_dict()['green']),
+                        blue_valve_flow=int(doc_tool.to_dict()['blue']),
+                        pto_rpm=int(doc_tool.to_dict()['pto']),
                         rfid=get_rfid_from_tool_doc(doc_tool),
-                        v_max=doc_tool.to_dict()['v_max'])
+                        v_max=float(doc_tool.to_dict()['v_max']))
         return tool
 
     def write_yaml(self, doc):
