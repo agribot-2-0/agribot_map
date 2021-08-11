@@ -13,6 +13,8 @@ class TaskSynchronization(object):
         self.tasks_path = tasks_path
         self.firestore = Firestore(certificate_file)
         self.uids = self.firestore.get_uids_for_rsn(robot_serial_number)
+        # TODO(all): Add path synchronization for many assigned users
+        # right now take one user from all assigned users
         self.user_id = self.uids[-1]
 
     def run(self):
