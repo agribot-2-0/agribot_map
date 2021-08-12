@@ -4,14 +4,12 @@ import yaml
 from agribot_common.database.firestore import Firestore
 from agribot_map.task_synchronization.set_yaml_fields import get_rfid_from_tool_doc, \
     get_path_name_from_task_doc
-import rospy
 
 
 class TaskSynchronization(object):
     def __init__(self, robot_serial_number, tasks_path, certificate_file):
         self.task_collection_path = u"robots/{}/tasks".format(robot_serial_number)
-        self.task_callback_done = threading.Event()
-        self.tool_callback_done = threading.Event()
+        self.callback_done = threading.Event()
         self.tasks_path = tasks_path
         self.firestore = Firestore(certificate_file)
         self.uids = self.firestore.get_uids_for_rsn(robot_serial_number)
@@ -34,7 +32,7 @@ class TaskSynchronization(object):
                 self.write_yaml(change.document)
             elif change.type.name == 'REMOVED':
                 self.delete_yaml(change.document)
-        self.task_callback_done.set()
+        self.callback_done.set()
 
     def firebase_tool_callback(self, doc_snapshot, changes, read_time):  # pylint: disable=unused-argument
         for change in changes:
@@ -45,7 +43,7 @@ class TaskSynchronization(object):
             #elif change.type.name == 'REMOVED':
             #TODO(all): think how to handle removed tools
 
-        self.tool_callback_done.set()
+        self.callback_done.set()
 
     def update_tools_in_tasks(self, tool_name):
         docs_front = list(
