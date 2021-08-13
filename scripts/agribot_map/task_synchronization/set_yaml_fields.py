@@ -13,43 +13,31 @@ def get_path_name_from_task_doc(doc):
     return path_name
 
 
+def return_str_from_doc(doc, name):
+    if isinstance(doc.to_dict()[name], str):
+        con = doc.to_dict()[str(name)]
+    else:
+        con = doc.to_dict()[str(name)].encode('ascii', 'ignore')
+    return con
+
+
+def return_float_from_doc(doc, name):
+    if doc.to_dict()[str(name)] == '*':
+        val = 0.0
+    else:
+        val = float(doc.to_dict()[str(name)])
+    return val
+
+
 def get_weather_conditions_from_task(doc):
-    if isinstance(doc.to_dict()['temperature_condition'], str):
-        temp_con = doc.to_dict()['temperature_condition']
-    else:
-        temp_con = doc.to_dict()['temperature_condition'].encode('ascii', 'ignore')
-    if doc.to_dict()['temperature_value'] == '*':
-        temp_val = 0.0
-    else:
-        temp_val = float(doc.to_dict()['temperature_value'])
-    rospy.logwarn(dict(condition=(temp_con if temp_con != '*' else 'none'), value=temp_val))
-    if isinstance(doc.to_dict()['humidity_condition'], str):
-        humi_con = doc.to_dict()['humidity_condition']
-    else:
-        humi_con = doc.to_dict()['humidity_condition'].encode('ascii', 'ignore')
-    if doc.to_dict()['humidity_value'] == '*':
-        humi_val = 0.0
-    else:
-        humi_val = float(doc.to_dict()['humidity_value'])
-    rospy.logwarn(dict(condition=(humi_con if humi_con != '*' else 'none'), value=humi_val))
-    if isinstance(doc.to_dict()['wind_condition'], str):
-        wind_con = doc.to_dict()['wind_condition']
-    else:
-        wind_con = doc.to_dict()['wind_condition'].encode('ascii', 'ignore')
-    if doc.to_dict()['wind_value'] == '*':
-        wind_val = 0.0
-    else:
-        wind_val = float(doc.to_dict()['wind_value'])
-    rospy.logwarn(dict(condition=(wind_con if wind_con != '*' else 'none'), value=wind_val))
-    if isinstance(doc.to_dict()['pressure_condition'], str):
-        pres_con = doc.to_dict()['pressure_condition']
-    else:
-        pres_con = doc.to_dict()['pressure_condition'].encode('ascii', 'ignore')
-    if doc.to_dict()['pressure_value'] == '*':
-        pres_val = 0.0
-    else:
-        pres_val = float(doc.to_dict()['pressure_value'])
-    rospy.logwarn(dict(condition=(pres_con if pres_con != '*' else 'none'), value=pres_val))
+    temp_con = return_str_from_doc(doc, 'temperature_condition')
+    temp_val = return_float_from_doc(doc, 'temperature_value')
+    humi_con = return_str_from_doc(doc, 'humidity_condition')
+    humi_val = return_float_from_doc(doc, 'humidity_value')
+    wind_con = return_str_from_doc(doc, 'wind_condition')
+    wind_val = return_float_from_doc(doc, 'wind_value')
+    pres_con = return_str_from_doc(doc, 'pressure_condition')
+    pres_val = return_float_from_doc(doc, 'pressure_value')
 
     weather_conditions = dict(temperature=dict(condition=(temp_con if temp_con != '*' else 'none'),
                                                value=temp_val),
