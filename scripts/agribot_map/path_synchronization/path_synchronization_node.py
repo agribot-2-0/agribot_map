@@ -9,6 +9,10 @@ import google.api_core.exceptions
 LOG_TAG = "PathSynchronizationNode"
 
 
+def new_path_callback(path_name):
+    rospy.logwarn("[{}] New paths downloaded: '{}'".format(LOG_TAG, path_name))
+
+
 def node():
     rospy.init_node('path_synchronization_node')
 
@@ -48,12 +52,12 @@ def node():
         rospy.logerr("[{}] Bucket does not exist. Initialization failed.".format(LOG_TAG))
         return
 
+    pathhandle.register_new_path_callback(new_path_callback)
+
     rate = rospy.Rate(0.1)
     while not rospy.is_shutdown():
         try:
-            downloaded_paths = pathhandle.sync_paths()
-            if downloaded_paths:
-                rospy.logwarn("[{}] New paths downloaded: {}".format(LOG_TAG, downloaded_paths))
+            pathhandle.sync_paths()
         except IOError as exception_msg:
             rospy.logerr("[{}] Exception: {}".format(LOG_TAG, exception_msg))
 
