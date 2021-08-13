@@ -13,6 +13,8 @@ class TaskSynchronization(object):
         self.tasks_path = tasks_path
         self.firestore = Firestore(certificate_file)
         self.uids = self.firestore.get_uids_for_rsn(robot_serial_number)
+        self._new_task_callback = None
+
         # TODO(all): Add path synchronization for many assigned users
         # right now take one user from all assigned users
         self.user_id = self.uids[-1]
@@ -23,6 +25,9 @@ class TaskSynchronization(object):
                                                               self.firebase_tool_callback)
         self.firestore.register_callback_on_collection_change(self.task_collection_path,
                                                               self.firebase_task_callback)
+
+    def register_new_task_callback(self, callback):
+        self._new_task_callback = callback
 
     def firebase_task_callback(self, doc_snapshot, changes, read_time):  # pylint: disable=unused-argument
         for change in changes:
@@ -90,6 +95,9 @@ class TaskSynchronization(object):
 
         with open(file_name, 'w') as outfile:
             yaml.dump(dict_to_write, outfile, default_flow_style=False)
+
+        if self._new_task_callback:
+            self._new_task_callback(doc.id)
 
     def delete_yaml(self, doc):
         file_name = self.get_file_path(doc)

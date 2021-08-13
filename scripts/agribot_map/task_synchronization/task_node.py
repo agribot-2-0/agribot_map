@@ -9,6 +9,10 @@ from agribot_common.agribot_parameters import get_parameter
 LOG_TAG = "TaskSynchronizationNode"
 
 
+def new_task_callback(task_name):
+    rospy.logwarn("[{}] New task downloaded: '{}'".format(LOG_TAG, task_name))
+
+
 def node():
     rospy.init_node('task_node')
 
@@ -25,18 +29,17 @@ def node():
 
     key_path = os.path.join(os.environ.get('AGRIBOT_HOME'), certificate_path)
     if not os.path.exists(key_path):
-        rospy.logerr("[{}] Key folder '{}' not present".format(
-            LOG_TAG, key_path))
+        rospy.logerr("[{}] Key folder '{}' not present".format(LOG_TAG, key_path))
         return
 
-    task_synchronization = TaskSynchronization(
-        robot_serial_number, tasks_path,
-        os.path.join(key_path, certificate_file))
+    task_synchronization = TaskSynchronization(robot_serial_number, tasks_path,
+                                               os.path.join(key_path, certificate_file))
 
     if remove_cashed_tasks:
         shutil.rmtree(tasks_path)
         os.makedirs(tasks_path)
 
+    task_synchronization.register_new_task_callback(new_task_callback)
     task_synchronization.run()
 
     rospy.spin()

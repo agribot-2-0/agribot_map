@@ -24,6 +24,7 @@ class PathHandler(object):
         self.user_paths = os.path.join(user_id, "paths")
         self.path_ver_path = os.path.join(pack_path, "paths_ver.yaml")
         self.paths_path = os.path.join(pack_path, "paths")
+        self._new_path_callback = None
 
         try:
             with open(self.path_ver_path) as file_:
@@ -33,16 +34,16 @@ class PathHandler(object):
             file_ = open(self.path_ver_path, "w")
         file_.close()
 
+    def register_new_path_callback(self, callback):
+        self._new_path_callback = callback
+
     @classmethod
     def extract_lon(cls, points):
         # points[3*i:3*i+1] is dictated by format of data
         # received from parsing KML file in get_path_points_from_blob method points list
         # like so: [alt1,lon1,lat1,alt1,lon1,lat1,...]
         return list(
-            np.float_([
-                points[3 * i:3 * i + 1]
-                for i in range(0, int(math.ceil(len(points) / 3)))
-            ]))
+            np.float_([points[3 * i:3 * i + 1] for i in range(0, int(math.ceil(len(points) / 3)))]))
 
     @classmethod
     def extract_lat(cls, points):
@@ -50,10 +51,8 @@ class PathHandler(object):
         # received from parsing KML file in get_path_points_from_blob method points list
         # like so: [alt1,lon1,lat1,alt1,lon1,lat1,...]
         return list(
-            np.float_([
-                points[3 * i + 1:3 * i + 2]
-                for i in range(0, int(math.ceil(len(points) / 3)))
-            ]))
+            np.float_(
+                [points[3 * i + 1:3 * i + 2] for i in range(0, int(math.ceil(len(points) / 3)))]))
 
     def get_all_user_paths(self, blob_nam):
         return list(filter(lambda k: self.user_paths in k, blob_nam))
@@ -71,8 +70,7 @@ class PathHandler(object):
         return blb[len(self.user_paths) + 1:len(blb)].split("_v")[0]
 
     def parse_path_number(self, blb):
-        return int(
-            (blb[len(self.user_paths) + 1:len(blb)].split("_v")[1])[:-4])
+        return int((blb[len(self.user_paths) + 1:len(blb)].split("_v")[1])[:-4])
 
     def get_all_blobs_from_bucket(self, blb_name):
         for blobs in self.bucket.list_blobs(prefix=self.user_paths):
@@ -122,10 +120,11 @@ class PathHandler(object):
             lon = self.extract_lon(path_points)
             lat = self.extract_lat(path_points)
         else:
-            raise IOError("Wrong format of path or path empty: " +
-                          str(path_name))
+            raise IOError("Wrong format of path or path empty: " + str(path_name))
 
         self.save_to_yaml(lon, lat, path_name)
+        if self._new_path_callback:
+            self._new_path_callback(path_name)
 
     def get_crc32(self, blob_name):
         return self.bucket.get_blob(blob_name).crc32c
@@ -133,7 +132,6 @@ class PathHandler(object):
     def sync_paths(self):
         blobs_names = []
         blobs_names = self.get_all_blobs_from_bucket(blobs_names)
-        downloaded_paths = []
 
         if not blobs_names:
             raise IOError("User folder does not exists")
@@ -146,15 +144,12 @@ class PathHandler(object):
                 if self.paths[path_name][0] < path_ver or self.paths[path_name][1] != crc32:
                     self.paths[path_name] = (path_ver, crc32)
                     self.download_path(blob, path_name)
-                    downloaded_paths.append(str(path_name))
             else:
                 self.paths[path_name] = (path_ver, crc32)
                 self.download_path(blob, path_name)
-                downloaded_paths.append(str(path_name))
         try:
             with open(self.path_ver_path, "w") as file_:
                 yaml.safe_dump(self.paths, file_)
+
         except IOError:
             raise IOError("Error opening YAML file.")
-
-        return downloaded_paths
