@@ -3,7 +3,7 @@ import threading
 import yaml
 from agribot_common.database.firestore import Firestore
 from agribot_map.task_synchronization.set_yaml_fields import get_rfid_from_tool_doc, \
-    get_path_name_from_task_doc
+    get_path_name_from_task_doc, get_weather_conditions_from_task
 
 
 class TaskSynchronization(object):
@@ -92,7 +92,8 @@ class TaskSynchronization(object):
         back_tool = self.set_tool(doc.to_dict()['back_tool_name'])
 
         dict_to_write = dict(task=dict(path_name=[get_path_name_from_task_doc(doc)],
-                                       tpl=dict(front=front_tool, back=back_tool)))
+                                       tpl=dict(front=front_tool, back=back_tool),
+                                       weather_conditions=[get_weather_conditions_from_task(doc)]))
 
         with open(file_name, 'w') as outfile:
             yaml.dump(dict_to_write, outfile, default_flow_style=False)
