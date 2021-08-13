@@ -45,8 +45,9 @@ class TaskSynchronization(object):
                 self.update_tools_in_tasks(change.document.id)
             elif change.type.name == 'MODIFIED':
                 self.update_tools_in_tasks(change.document.id)
-            #elif change.type.name == 'REMOVED':
-            #TODO(all): think how to handle removed tools
+            # TODO(all): think how to handle removed tools
+            # elif change.type.name == 'REMOVED':
+            #     pass
 
         self.callback_done.set()
 
