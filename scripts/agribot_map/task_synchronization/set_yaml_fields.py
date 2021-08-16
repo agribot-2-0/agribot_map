@@ -1,6 +1,3 @@
-import rospy
-
-
 def get_rfid_from_tool_doc(doc_tool):
     return [int(i) for i in doc_tool.to_dict()['rfid']]
 
@@ -47,5 +44,4 @@ def get_weather_conditions_from_task(doc):
                                         value=wind_val),
                               pressure=dict(condition=(pres_con if pres_con != '*' else 'none'),
                                             value=pres_val))
-    rospy.logwarn(weather_conditions)
     return weather_conditions
