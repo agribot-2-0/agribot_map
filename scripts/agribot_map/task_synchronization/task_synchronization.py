@@ -93,7 +93,7 @@ class TaskSynchronization(object):
 
         dict_to_write = dict(task=dict(path_name=[get_path_name_from_task_doc(doc)],
                                        tpl=dict(front=front_tool, back=back_tool),
-                                       weather_conditions=[get_weather_conditions_from_task(doc)]))
+                                       weather_conditions=get_weather_conditions_from_task(doc)))
 
         with open(file_name, 'w') as outfile:
             yaml.dump(dict_to_write, outfile, default_flow_style=False)

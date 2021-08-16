@@ -15,17 +15,17 @@ def get_path_name_from_task_doc(doc):
 
 def return_str_from_doc(doc, name):
     if isinstance(doc.to_dict()[name], str):
-        con = doc.to_dict()[str(name)]
+        con = doc.to_dict()[name]
     else:
-        con = doc.to_dict()[str(name)].encode('ascii', 'ignore')
+        con = doc.to_dict()[name].encode('ascii', 'ignore')
     return con
 
 
 def return_float_from_doc(doc, name):
-    if doc.to_dict()[str(name)] == '*':
+    if doc.to_dict()[name] == '*':
         val = 0.0
     else:
-        val = float(doc.to_dict()[str(name)])
+        val = float(doc.to_dict()[name])
     return val
 
 
@@ -39,10 +39,10 @@ def get_weather_conditions_from_task(doc):
     pres_con = return_str_from_doc(doc, 'pressure_condition')
     pres_val = return_float_from_doc(doc, 'pressure_value')
 
-    weather_conditions = dict(temperature=dict(condition=(temp_con if temp_con != '*' else 'none'),
-                                               value=temp_val),
-                              humidity=dict(condition=(humi_con if humi_con != '*' else 'none'),
+    weather_conditions = dict(humidity=dict(condition=(humi_con if humi_con != '*' else 'none'),
                                             value=humi_val),
+                              temperature=dict(condition=(temp_con if temp_con != '*' else 'none'),
+                                               value=temp_val),
                               wind=dict(condition=(wind_con if wind_con != '*' else 'none'),
                                         value=wind_val),
                               pressure=dict(condition=(pres_con if pres_con != '*' else 'none'),
